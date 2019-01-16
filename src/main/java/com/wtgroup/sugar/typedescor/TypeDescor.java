@@ -84,6 +84,7 @@ public class TypeDescor {
         boolean b = validate(typeDescs);
 
         if (log.isTraceEnabled() || debug) {
+            System.out.println(type +" ==> ");
             System.out.println(JSON.toJSONString(typeDescs, true));
         }
 

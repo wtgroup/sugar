@@ -13,9 +13,8 @@ public class TypeDescorTest {
 
     @Test
     public void fun3() throws ClassNotFoundException {
-        // String 类型 原文要带有"
-        //String jo = JSON.parseObject("\"xxxx\"", String.class);
 
+        //region 生成测试json串
         List<Map<String, Object>> maps = new ArrayList<Map<String, Object>>();
         HashMap<String, Object> m = new HashMap<>();
         m.put("user", new User("libai", 89));
@@ -27,15 +26,21 @@ public class TypeDescorTest {
         maps.add(m2);
 
         String s = JSON.toJSONString(maps);
+        //endregion
         //Object jo = JSON.parse(s);
 
         TypeDescor td = new TypeDescor();
+        // 开始debug, 可以打印类型表达式分解后的结果
         td.setDebug(true);
+        // 解析类型表达式
         Type[] types = td.resolveTypeDesc("List<map<string,string>>");
 
+        // 测试 json 转换
         Object jo = JSON.parseObject(s, types[0]);
 
 
+        System.out.println();
+        System.out.println("解析得到对象: ");
         System.out.println(jo);
     }
 
@@ -85,5 +90,8 @@ public class TypeDescorTest {
         List<? super Number> numbers = JSON.parseObject(s, ref);
         System.out.println(numbers);
     }
+
+    // String 类型 原文要带有"
+    //String jo = JSON.parseObject("\"xxxx\"", String.class);
 
 }

@@ -36,4 +36,4 @@
 
 
 
-参见示例代码: [com.wtgroup.sugar.typedescor.TypeDescorTest](com.wtgroup.sugar.typedescor.TypeDescorTest)
+参见示例代码: [com.wtgroup.sugar.typedescor.TypeDescorTest](https://github.com/Nisus-Liu/sugar/blob/master/src/test/java/com/wtgroup/sugar/typedescor/TypeDescorTest.jav://github.com/Nisus-Liu/sugar/blob/master/src/test/java/com/wtgroup/sugar/typedescor/TypeDescorTest.java)

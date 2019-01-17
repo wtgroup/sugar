@@ -121,6 +121,7 @@ public class TypeDescor {
      * <ul>
      *     <li> 必须要有 rawType
      *     <li> 拒绝 WildcardType 类型, 因为构造起来貌似麻烦.
+     *     <li> 剔除首尾空格</li>
      * </ul>
      *
      * @param typeDescs
@@ -136,6 +137,9 @@ public class TypeDescor {
             }
 
             rejectWildcardType(td.rawType);
+
+            // trim
+            td.rawType = td.rawType.trim();
 
             if (td.rawType!=null && alias.containsKey(td.rawType.toLowerCase())) {
                 td.rawType = alias.get(td.rawType.toLowerCase());
@@ -157,6 +161,25 @@ public class TypeDescor {
     }
 
 
+    /**
+     * <pre>
+     *     "A&lt;a1&lt;a11,a12&gt;, a2&lt;a21,a22&gt;,a3&gt;, B&lt;b&gt;,C"
+     *
+     *     1. 拆分出一级元素.
+     *       1.1 目标: 找当前左括号匹配的右括号.
+     *         先定好搜索的范围, 范围的终点是第一个右括号. 自左向右搜索左括号, 遇到一个时, 终点往后挪一次.
+     *         这是因为: 每个左括号都需要匹配的右括号, 所以当搜索到了左括号时, 当前终点位置对应的右括号就需要与此
+     *         左括号匹配, 应当放弃, 需要在尝试用后面的右括号.
+     *
+     *         换句话说, 要找目标&lt;匹配的&gt;, 首先我假设第一个&gt;就是要找的. 但是当我在目标&lt;和这个&gt;
+     *         之间遇到了其他的&lt;, 这说明当前这个&gt;至少是遇到的这个&lt;的匹配. 所以, 上文的假设被推翻, 于是,
+     *         再次假设第二个&gt;是目标&lt;的匹配的. ...
+     *
+     *     2. 一级元素递归调用方法, 进一步拆分.
+     * </pre>
+     * @param type
+     * @return
+     */
     private List<TypeDesc> resolveTypeDesc0(String type) {
         List<TypeDesc> typeDescs = new ArrayList<TypeDesc>();
 
@@ -170,41 +193,52 @@ public class TypeDescor {
                 // 找出对应的 闭合 >
                 int argEd = -1;
                 int ltNum = 0;  // 中间的 '<' 数量
-                int gtIx = type.indexOf(GT, argSt);
-                if (gtIx <= 0) {
+                // 假设的闭合标签
+                int hypoMatchGt = type.indexOf(GT, argSt);
+                if (hypoMatchGt <= 0) {
                     // 有'<', 但没有'>'
-                    throw new IllegalStateException("Syntax error: '" + type + "' '<' at " + (argSt - 1) + "hasn't matched '>'");
+                    throw new IllegalStateException("Syntax error: '" + type + "' '<' at " + (argSt - 1) + " hasn't matched '>'");
                 }
                 // 第一个'>'前有多少个'<', 那么第几个'>'就是闭合
-                for (int i = argSt; i < gtIx; i++) {
+                for (int i = argSt; i < hypoMatchGt; i++) {
                     // nextLt = type.indexOf('<', i) + 1;
                     if (type.charAt(i) == LT) {
+                        // 一旦区间内搜索到了新的开始标签 => 假设的闭合标签失效 --> 往后挪一个闭合标签作为新的假设闭合标签
+                        hypoMatchGt = type.indexOf(GT, hypoMatchGt + 1);
+                        if (hypoMatchGt < 0) {
+                            // 1. 旧的闭合标签无效, 新的假设标签遇到字符串结束 => 语法格式错误
+                            // 2. 未到末尾, 但没有找到'>' => 语法错误
+                            throw new IllegalStateException("Syntax error: '" + type + "' '<' at " + (argSt - 1) + " hasn't matched '>'");
+                        }
                         ltNum++;
                     }
-                }
+                }//end for: 起始-假设闭合位置, 所有的'<'搜索完毕 => 假设闭合位置就是想要的真实闭合位置
 
-                if (ltNum <= 0) {
-                    // 后面没有了 '<' => 第一个'>'就是闭合
-                    argEd = gtIx;
-                }else {
-                    // 往后略过 ltNum 个 '>'后, 遇到才是闭合>
-                    // i.e. gtIx+1 往后遇到的第 ltNum 个>
-                    int gtNum = 0;
-                    for (int i = gtIx + 1; i < type.length(); i++) {
-                        if (type.charAt(i) == GT) {
-                            gtNum++;
-                        }
-                        if (gtNum >= ltNum) {
-                            argEd = i;
-                            break;
-                        }
-                    }
+                // 假设闭合 --> 真实闭合
+                argEd = hypoMatchGt;
 
-                    // ltNum > 0, 但argEnd还是<=0 => 后面没有找到匹配的>
-                    if (argEd <= 0) {
-                        throw new IllegalStateException("Syntax error: '" + type + "' '<' at " + (argSt - 1) + "hasn't matched '>'");
-                    }
-                }
+//                if (ltNum <= 0) {
+//                    // 后面没有了 '<' => 第一个'>'就是闭合
+//                    argEd = hypoMatchGt;
+//                }else {
+//                    // 往后略过 ltNum 个 '>'后, 遇到才是闭合>
+//                    // i.e. hypoMatchGt+1 往后遇到的第 ltNum 个>
+//                    int gtNum = 0;
+//                    for (int i = hypoMatchGt + 1; i < type.length(); i++) {
+//                        if (type.charAt(i) == GT) {
+//                            gtNum++;
+//                        }
+//                        if (gtNum >= ltNum) {
+//                            argEd = i;
+//                            break;
+//                        }
+//                    }
+//
+//                    // ltNum > 0, 但argEnd还是<=0 => 后面没有找到匹配的>
+//                    if (argEd <= 0) {
+//                        throw new IllegalStateException("Syntax error: '" + type + "' '<' at " + (argSt - 1) + " hasn't matched '>'");
+//                    }
+//                }
 
                 // 截取出参数
                 String rawType = type.substring(cellSt, argSt - 1);

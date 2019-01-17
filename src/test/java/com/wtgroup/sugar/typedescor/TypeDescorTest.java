@@ -91,6 +91,19 @@ public class TypeDescorTest {
         System.out.println(numbers);
     }
 
+    @Test
+    public void 测试类型表达式解析() {
+        String type = "A<a1 < a11,a12>, a2<a21,a22>,a3>, B<b>,C";
+        TypeDescor td = new TypeDescor();
+        td.setDebug(true);
+        try {
+            td.resolveTypeDesc(type);
+        } catch (ClassNotFoundException e) {
+            // 仅测试类型表达式解析结果, 忽略类型转换
+        }
+
+    }
+
     // String 类型 原文要带有"
     //String jo = JSON.parseObject("\"xxxx\"", String.class);
 

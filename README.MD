@@ -9,19 +9,19 @@
 ## maven引用
 
 ```
-	<repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
-	
-	<!--增加依赖-->
-	<dependency>
-	    <groupId>com.github.Nisus-Liu</groupId>
-	    <artifactId>sugar</artifactId>
-	    <version>{version}</version>
-	</dependency>
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<!--增加依赖-->
+<dependency>
+    <groupId>com.github.Nisus-Liu</groupId>
+    <artifactId>sugar</artifactId>
+    <version>{version}</version>
+</dependency>
 ```
 
 

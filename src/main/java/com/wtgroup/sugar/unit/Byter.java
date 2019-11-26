@@ -1,0 +1,178 @@
+package com.wtgroup.sugar.unit;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.io.Serializable;
+import java.text.DecimalFormat;
+
+/**
+ * 大小单位
+ *
+ * @author Nisus Liu
+ * @version 0.0.1
+ * @email liuhejun108@163.com
+ * @date 2018/11/30 17:18
+ */
+public class Byter implements Comparable<Byter>, Serializable {
+    /**
+     * Bytes->KB->MB...的进制大小
+     */
+    private static final int K = 1024;
+    //<editor-fold desc="计算机常用的存储单位">
+    // 8 bit = 1 Byte 一字节
+    //1024 B = 1 KB （KiloByte） 千字节
+    //1024 KB = 1 MB （MegaByte） 兆字节
+    //1024 MB = 1 GB （GigaByte） 吉字节
+    //1024 GB = 1 TB （TeraByte） 太字节
+    //1024 TB = 1 PB （PetaByte） 拍字节
+    //1024 PB = 1 EB （ExaByte） 艾字节
+    //1024 EB = 1 ZB （ZetaByte） 皆字节
+    //1024 ZB = 1 YB （YottaByte） 佑字节
+    //1024 YB = 1BB（Brontobyte）珀字节
+    //1024 BB = 1 NB （NonaByte） 诺字节
+    //1024 NB = 1 DB （DoggaByte）刀字节
+    //</editor-fold>
+    static final int BIT_PER_BYTE = 8;
+//    static final long KB = K;
+//    static final long MB = KB * K;
+//    static final long GB = MB * K;
+//    static final long TB = GB * K;
+//    static final long PB = TB * K;
+//    static final long B_PER_EB = PB * K;
+//    static final BigInteger B_PER_ZB = BigInteger.valueOf(B_PER_EB * K);
+//    static final BigInteger B_PER_YB = BigInteger.valueOf(B_PER_ZB * K);
+//    static final BigInteger B_PER_BB = BigInteger.valueOf(B_PER_YB * K);
+//    static final BigInteger B_PER_NB = BigInteger.valueOf(B_PER_BB * K);
+//    static final BigInteger B_PER_DB = BigInteger.valueOf(B_PER_NB * K);
+
+    enum ByteUnit {
+        B(1, "B"),
+        KB(K, "KB"),
+        MB(K*KB.value,"MB"),
+        GB(K*MB.value,"GB"),
+        TB(K*GB.value,"TB"),
+        PB(K*TB.value,"PB"),
+        ;
+        private long value;
+        private String unit;
+
+        ByteUnit(long size, String unit) {
+            this.value = size;
+            this.unit = unit;
+        }
+
+        @Override
+        public String toString() {
+            return value+unit;
+        }
+    }
+
+
+    private static final Byter ZERO = new Byter(0);
+    private static final DecimalFormat THREE_DECIMALS_FORMATER = new DecimalFormat("0.000");
+
+    private final long bytes;
+
+    private Byter(long bytes) {
+        this.bytes = bytes;
+    }
+
+    public static Byter ofBytes(long bytes) {
+        if (bytes == 0) {
+            return ZERO;
+        }
+        return new Byter(bytes);
+    }
+
+    public static Byter ofKB(long kb) {
+        if (kb == 0) {
+            return ZERO;
+        }
+        return new Byter(Math.multiplyExact(ByteUnit.KB.value, kb));
+    }
+
+    public static Byter ofMB(long mb) {
+        if (mb == 0) {
+            return ZERO;
+        }
+        return new Byter(Math.multiplyExact(ByteUnit.MB.value, mb));
+    }
+
+    public static Byter ofGB(long gb) {
+        if (gb == 0) {
+            return ZERO;
+        }
+        return new Byter(Math.multiplyExact(ByteUnit.GB.value, gb));
+    }
+
+    public static Byter ofTB(long tb) {
+        if (tb == 0) {
+            return ZERO;
+        }
+        return new Byter(Math.multiplyExact(ByteUnit.TB.value, tb));
+    }
+
+    public static Byter ofPB(long pb) {
+        if (pb == 0) {
+            return ZERO;
+        }
+        return new Byter(Math.multiplyExact(ByteUnit.PB.value, pb));
+    }
+
+
+    public long toBytes() {
+        return bytes;
+    }
+
+    public float toKB() {
+        return (float)bytes / ByteUnit.KB.value;
+    }
+
+    public float toMB() {
+        return (float)bytes / ByteUnit.MB.value;
+    }
+
+    public float toGB() {
+        return (float)bytes / ByteUnit.GB.value;
+    }
+
+    public float TB() {
+        return (float)bytes / ByteUnit.TB.value;
+    }
+
+    public float toPB() {
+        return (float)bytes / ByteUnit.PB.value;
+    }
+
+
+    @Override
+    public int compareTo(@NotNull Byter otherByter) {
+        return Long.compare(this.bytes, otherByter.bytes);
+    }
+
+    @Override
+    public String toString() {
+        float size = 0;
+        String unit = "B";
+        if (bytes < ByteUnit.KB.value) {
+            size=this.toBytes();
+            unit = ByteUnit.B.unit;
+        } else if (bytes < ByteUnit.MB.value) {
+            size=this.toKB();
+            unit = ByteUnit.KB.unit;
+        } else if (bytes < ByteUnit.GB.value) {
+            size=this.toMB();
+            unit = ByteUnit.MB.unit;
+        } else {
+            size=this.toGB();
+            unit = ByteUnit.GB.unit;
+        }
+
+        return THREE_DECIMALS_FORMATER.format(size) + unit;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(Byter.ofBytes(1099511676527776L));
+        System.out.println(Byter.ofGB(2).toKB());
+    }
+}

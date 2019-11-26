@@ -77,6 +77,7 @@ public class Operator {
     }
 
     /**
+     * 此构造时, 要求 value 非 null
      * Returns an {@code Operator} with the specified present non-null value.
      *
      * @param value the value to be present, which must be non-null
@@ -87,6 +88,11 @@ public class Operator {
         return new Operator(value);
     }
 
+    /**此构造时, 要求 value 非 null
+     * @param value
+     * @param rule
+     * @return
+     */
     public static Operator of(Number value, Rule rule) {
         return new Operator(value, rule);
     }
@@ -100,10 +106,16 @@ public class Operator {
      * is non-null, otherwise an empty {@code Operator}
      */
     public static Operator ofNullable(Number value) {
-        return value == null ? empty() : of(value);
+        return ofNullable(value, Rule.DEFAULT);
     }
 
     public static Operator ofNullable(Number value, Rule rule) {
+        if (value == null) {
+            if (rule.nullAsZero) {
+                value = 0;
+            }
+        }
+
         return value == null ? empty() : of(value, rule);
     }
 
@@ -133,13 +145,13 @@ public class Operator {
     }
 
 
-    /**如非必要不建议此方法获取原始值, 因为设置的Rule将会失效.
-     * 破坏整个逻辑链条.
-     * @return
-     */
-    public Number getRaw() {
-        return value;
-    }
+    // /**如非必要不建议此方法获取原始值, 因为设置的Rule将会失效.
+    //  * 破坏整个逻辑链条.
+    //  * @return
+    //  */
+    // public Number getRaw() {
+    //     return value;
+    // }
 
     // /**
     //  * Return {@code true} if there is a value present, otherwise {@code false}.
@@ -249,6 +261,18 @@ public class Operator {
             }
         }
         return false;
+    }
+
+    private static boolean isNull(Number value, Rule rule) {
+        if (value == null) {
+            if (rule.nullAsZero) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+
     }
 
     public boolean isNotNull() {

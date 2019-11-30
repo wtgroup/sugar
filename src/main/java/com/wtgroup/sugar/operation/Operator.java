@@ -177,7 +177,7 @@ public class Operator {
 
 
     public Operator div(Number divisor) {
-        Operator other = Operator.ofNullable(divisor);
+        Operator other = Operator.ofNullable(divisor, rule);
         if (isNull() || other.isNull()) {
             return empty();
         }
@@ -210,7 +210,7 @@ public class Operator {
     }
 
     public Operator mul(Number other) {
-        Operator otherOpt = Operator.ofNullable(other);
+        Operator otherOpt = Operator.ofNullable(other, rule);
         if (isNull() || otherOpt.isNull()) {
             return empty();
         }
@@ -222,7 +222,7 @@ public class Operator {
     }
 
     public Operator add(Number other) {
-        Operator otherOpt = Operator.ofNullable(other);
+        Operator otherOpt = Operator.ofNullable(other, rule);
         if (isNull() || otherOpt.isNull()) {
             return empty();
         }
@@ -233,7 +233,7 @@ public class Operator {
     }
 
     public Operator sub(Number other) {
-        Operator otherOpt = Operator.ofNullable(other);
+        Operator otherOpt = Operator.ofNullable(other, rule);
         if (isNull() || otherOpt.isNull()) {
             return empty();
         }
@@ -261,18 +261,6 @@ public class Operator {
             }
         }
         return false;
-    }
-
-    private static boolean isNull(Number value, Rule rule) {
-        if (value == null) {
-            if (rule.nullAsZero) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-        return false;
-
     }
 
     public boolean isNotNull() {

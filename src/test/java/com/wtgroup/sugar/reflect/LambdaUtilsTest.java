@@ -1,0 +1,28 @@
+package com.wtgroup.sugar.reflect;
+
+import org.junit.Test;
+
+import com.wtgroup.sugar.bean.User;
+
+public class LambdaUtilsTest {
+
+    @Test
+    public void fnToFieldName() {
+        String s = LambdaUtils.fieldName(User::getuName);
+        System.out.println(s);
+        String s1 = LambdaUtils.fieldName(User::getAge);
+        System.out.println(s1);
+        System.out.println(LambdaUtils.fieldName(User::getTags));
+        System.out.println(LambdaUtils.fieldName(User::isMale));
+    }
+
+
+    @Test
+    public void foo2() {
+
+
+    }
+
+
+
+}

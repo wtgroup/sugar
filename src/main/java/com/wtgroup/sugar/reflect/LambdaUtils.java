@@ -10,8 +10,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
- *  存遵循 Java 的字段, getter, setter 命名规范.
- *  错误示例: private boolean isMale, 应为 private boolean male
+ *  遵循 Java 的字段, getter, setter 命名规范.
+ *  错误示例: private boolean isMale, 应为 private boolean male.
+ *  ! 特殊格式的字段名少用, 如若需要, 请确保符合预期 !
  * </p>
  *
  * @author dafei

@@ -2,9 +2,22 @@ package com.wtgroup.sugar.operation;
 
 import org.junit.Test;
 
+import java.math.RoundingMode;
+
 import static org.junit.Assert.*;
 
 public class OperatorTest {
+
+    @Test
+    public void round() {
+        // (5*6 + 7) / 8
+        System.out.println((5*6 + 7) / 8.0);
+        Operator a = Operator.ofNullable(5).mul(6).add(7).div(8).round(1, null);
+
+        System.out.println(a);
+
+    }
+
 
     @Test
     public void foo1() {

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -243,6 +244,31 @@ public class Operator {
         return Operator.ofNullable(sub, rule);
     }
 
+    /**常规 四舍五入 的快捷方式
+     * 等价于: {@link RoundingMode#HALF_UP}
+     * @param scale
+     * @return
+     */
+    public Operator round(int scale) {
+        return this.round(scale, null);
+    }
+
+    /**
+     * 保留固定位数小数<br>
+     * 例如保留四位小数：123.456789 =》 123.4567
+     *
+     * @param scale 保留小数位数，如果传入小于0，则默认0
+     * @param roundingMode 保留小数的模式 {@link RoundingMode}，如果传入null则默认四舍五入
+     * @return 新值
+     */
+    public Operator round(int scale, RoundingMode roundingMode) {
+        if (this.isNull()) {
+            return empty();
+        }
+        BigDecimal round = NumberUtil.round(String.valueOf(this.get()), scale, roundingMode);
+        return Operator.of(round);
+    }
+
 
     public boolean isZero() {
         return get().doubleValue() == 0;
@@ -271,6 +297,7 @@ public class Operator {
     @Accessors(chain = true)
     public static class Rule {
         public static final Rule DEFAULT = new Rule(true,true,true);
+        public static final Rule NOT_NULL_AS_ZERO = new Rule(false,true,true);
         private boolean nullAsZero;
         private boolean nanAsZero;
         private boolean infinityAsZero;

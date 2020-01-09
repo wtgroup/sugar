@@ -12,4 +12,6 @@ public class User {
     private boolean male;
     private List<String> tags;
 
+    private String i_am_xia_Huaxian;
+
 }

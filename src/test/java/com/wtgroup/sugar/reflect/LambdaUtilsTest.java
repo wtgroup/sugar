@@ -7,6 +7,12 @@ import com.wtgroup.sugar.bean.User;
 public class LambdaUtilsTest {
 
     @Test
+    public void foo1() {
+        System.out.println(LambdaUtils.fieldName(User::getI_am_xia_Huaxian));
+    }
+
+
+    @Test
     public void fnToFieldName() {
         String s = LambdaUtils.fieldName(User::getUname);
         System.out.println(s);

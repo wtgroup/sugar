@@ -228,13 +228,12 @@ public class TreeTableHandler<T, R, ID> {
         R mapProperties(T row);
 
         /**
-         * 当子集数据准备好后调用.
-         * 1. 决定了处理好的子集如何封装. 如设置那个字段.
+         * 当子集数据准备好后调用. <em>通常你需要</em>, <code>parent.setChildren(children)</code>.
+         * 1. 决定了处理好的子集如何封装. 如设置哪个字段.
          * 2. 可以对子集的进行聚合计算, 比如子集个数, 子集的某个属性求和..., 并设置和父上级对象的某个属性.
          *
-         * 若无需特殊操作, 实现空方法即可.
          * @param parent 已经封装好的结果对象
-         * @param children 已经封装好的结果对象List
+         * @param children 已经封装好的子集结果对象List
          */
         void onChildren(R parent, List<R> children);
 

@@ -51,14 +51,14 @@ public class TreeTableHandler<T, R, ID> {
     @Setter
     private ResultMapper<T, R>       resultMapper;
 
-    @Getter
+    // @Getter
     private Map<ID, List<ID>> treeMeta;
     /**
      * 原始数据转换成 id 为key的map
      */
     private Map<ID, T>        dataMap;
-    @Getter
-    private List<R>           results = new ArrayList<>();
+    // @Getter
+    private List<R>           results;
     private HashSet<ID> transed = new HashSet<>();
 
     public TreeTableHandler(List<T> data, Function<T, ID> getId, Function<T, ID> getPId, ResultMapper<T, R> resultMapper ) {
@@ -121,13 +121,16 @@ public class TreeTableHandler<T, R, ID> {
 
     public List<R> toTree() {
 
-        this.parseTreeMeta();
+        if (treeMeta==null) {
+            this.parseTreeMeta();
+        }
+        if (results!=null) {
+            return results;
+        }
         // 检验引用链 (貌似禁止id列重复, 已经避免了循环引用)
         // this.validateCircleRefer();
 
-        if ( results == null ) {
-            results = new ArrayList<>();
-        }
+        results = new ArrayList<>();
 
         for ( Map.Entry<ID, List<ID>> m : treeMeta.entrySet() ) {
             // key 去 dataMap 中拿到 行数据, 转换成 javabean
@@ -170,6 +173,20 @@ public class TreeTableHandler<T, R, ID> {
             resultMapper.onChildren(res, children);
         }
         return res;
+    }
+
+    public Map<ID, List<ID>> getTreeMeta() {
+        if (treeMeta==null) {
+            this.parseTreeMeta();
+        }
+        return treeMeta;
+    }
+
+    public List<R> getResults() {
+        if (results==null) {
+            this.toTree();
+        }
+        return results;
     }
 
     private void validateCircleRefer() {
@@ -223,7 +240,7 @@ public class TreeTableHandler<T, R, ID> {
          * 数据行 ==> javabean
          * 如无需转换, 类型, 可将设置 T==R, 这里原样返回.
          * @param row 关系表的数据行
-         * @param lvl 当前层级
+         * @param lvl 当前层级. 0 开始
          * @return 定制行数据结果封装
          */
         R mapProperties(T row, int lvl);

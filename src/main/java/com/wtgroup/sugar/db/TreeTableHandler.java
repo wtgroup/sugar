@@ -136,7 +136,7 @@ public class TreeTableHandler<T, R, ID> {
             if ( transed.contains(key) ) {
                 continue;
             }
-            R  res = toTree0(key);
+            R  res = toTree0(key,0);
             if ( res != null ) {
                 results.add(res);
             }
@@ -145,7 +145,7 @@ public class TreeTableHandler<T, R, ID> {
         return results;
     }
 
-    private R toTree0( ID id ) {
+    private R toTree0( ID id, int lvl ) {
         T row = dataMap.get(id);
         // row 有可能为空, 因为 pid 在id列中没有, 而是指向其他表, 或者错误
         if ( row == null ) {
@@ -154,12 +154,12 @@ public class TreeTableHandler<T, R, ID> {
         }
 
         //R res = rowMapper.apply(row);
-        R        res      = resultMapper.mapProperties(row);
+        R        res      = resultMapper.mapProperties(row, lvl);
         List<ID> childIds = treeMeta.get(id);
         if ( childIds != null ) {
             List<R> children = new ArrayList<>();
             for ( ID cid : childIds ) {
-                R e = toTree0(cid);
+                R e = toTree0(cid, lvl+1);
                 if (e!=null) {
                     children.add(e);
                 }
@@ -223,9 +223,10 @@ public class TreeTableHandler<T, R, ID> {
          * 数据行 ==> javabean
          * 如无需转换, 类型, 可将设置 T==R, 这里原样返回.
          * @param row 关系表的数据行
+         * @param lvl 当前层级
          * @return 定制行数据结果封装
          */
-        R mapProperties(T row);
+        R mapProperties(T row, int lvl);
 
         /**
          * 当子集数据准备好后调用. <em>通常你需要</em>, <code>parent.setChildren(children)</code>.

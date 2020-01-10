@@ -32,12 +32,13 @@ public class TreeTableHandlerTest {
                 row -> (Integer) row.get("pid"),
                 new TreeTableHandler.ResultMapper<Map, Map>() {
                     @Override
-                    public Map mapProperties( Map row ) {
+                    public Map mapProperties( Map row , int lvl) {
                         HashMap res = new HashMap();
                         res.put("rid", row.get("id"));
                         res.put("rpid", row.get("pid"));
                         res.put("rgdp", row.get("gdp"));
                         res.put("rpopulation", row.get("population"));
+                        res.put("lvl", lvl);
                         return res;
                     }
 

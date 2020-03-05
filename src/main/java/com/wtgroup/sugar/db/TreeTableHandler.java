@@ -1,12 +1,11 @@
 package com.wtgroup.sugar.db;
 
-import lombok.Builder;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * 父子, 属性表数据处理
@@ -50,6 +49,7 @@ public class TreeTableHandler<T, R, ID> {
     //private Function<T, R> rowMapper;
     @Setter
     private ResultMapper<T, R>       resultMapper;
+    private Predicate<T> isRootNode;
 
     // @Getter
     private Map<ID, List<ID>> treeMeta;
@@ -61,11 +61,17 @@ public class TreeTableHandler<T, R, ID> {
     private List<R>           results;
     private HashSet<ID> transed = new HashSet<>();
 
-    public TreeTableHandler(List<T> data, Function<T, ID> getId, Function<T, ID> getPId, ResultMapper<T, R> resultMapper ) {
+    public TreeTableHandler(List<T> data, Function<T, ID> getId, Function<T, ID> getPId, ResultMapper<T, R> resultMapper) {
+        this(data, getId, getPId, resultMapper, null);
+    }
+
+    public TreeTableHandler(List<T> data, Function<T, ID> getId, Function<T, ID> getPId, ResultMapper<T, R> resultMapper,
+                            Predicate<T> isRootNode) {
         this.data = data;
         this.getId = getId;
         this.getPId = getPId;
         this.resultMapper = resultMapper;
+        this.isRootNode = isRootNode;
     }
 
     private void parseTreeMeta() {
@@ -98,19 +104,20 @@ public class TreeTableHandler<T, R, ID> {
             }
             ID id  = getId.apply(r);
             ID pid = getPId.apply(r);
-            // pid 不为null, 且在 id 列中有 => 当前 id 是中间节点
+            // 优先使用指定规则判断 根节点.
+            // 无指定规则时, pid 不为null, 且在 id 列中有 => 当前 id 是中间节点
             // 否则, 认为是没有子节点的根节点
-            if ( pid != null &&  dataMap.containsKey(pid)) {
+            if (!isRoot(r, pid)) {
                 List<ID> ids = treeMeta.computeIfAbsent(pid, k -> new ArrayList<>());
-                if ( id != null && !id.equals(pid)) {
+                if (id != null && !id.equals(pid)) {
                     ids.add(id);
-                } else if ( id == null ) {
+                } else if (id == null) {
                     log.warn("id == null, 忽略! 行数: " + i);
-                } else if ( id.equals(pid) ) {
+                } else if (id.equals(pid)) {
                     // id == pid 时, 禁止添加到子集中, 否则必会导致循环引用
                     log.warn("id == pid, 忽略! id=" + id);
                 }
-            }else{ // 当前 id 是顶级, 且没有子节点了
+            } else { // 当前 id 是顶级, 且没有子节点了
                 treeMeta.put(id, null);
             }
 
@@ -118,6 +125,19 @@ public class TreeTableHandler<T, R, ID> {
 
     }
 
+    private boolean isRoot(T r, ID pid) {
+        boolean isRoot = false;
+        if (isRootNode != null) {
+            isRoot = isRootNode.test(r);
+        }else{
+            isRoot = pid == null || !dataMap.containsKey(pid);
+        }
+
+        return isRoot;
+    }
+
+    /*? 加了 isRootNode 判断貌似没有用. 利用 treeMeta 处理 tree 过程中, 没有上级的 pid 不会别人处理到.
+    * 就不会放到 transed 集合中. 这样, 到自己时, 依然往下执行. 就还在 root 层级上了.*/
 
     public List<R> toTree() {
 

@@ -41,7 +41,7 @@ import java.util.function.Predicate;
 public class TreeTableHandler<T, R, ID> {
 
     @Setter
-    private List<T>         data;
+    private List<T> data;
     @Setter
     private Function<T, ID> getId;  // 假定 id 和 pid 列类型一致
     @Setter
@@ -56,9 +56,9 @@ public class TreeTableHandler<T, R, ID> {
     /**
      * 原始数据转换成 id 为key的map
      */
-    private Map<ID, T>        dataMap;
+    private Map<ID, T> dataMap;
     // @Getter
-    private List<R>           results;
+    private List<R> results;
     private HashSet<ID> transed = new HashSet<>();
 
     public TreeTableHandler(List<T> data, Function<T, ID> getId, Function<T, ID> getPId, ResultMapper<T, R> resultMapper) {
@@ -159,7 +159,7 @@ public class TreeTableHandler<T, R, ID> {
             if ( transed.contains(key) ) {
                 continue;
             }
-            R  res = toTree0(key,0);
+            R  res = toTree0(key,0, Optional.empty());
             if ( res != null ) {
                 results.add(res);
             }
@@ -168,7 +168,7 @@ public class TreeTableHandler<T, R, ID> {
         return results;
     }
 
-    private R toTree0( ID id, int lvl ) {
+    private R toTree0( ID id, int lvl, Optional<R> parent ) {
         T row = dataMap.get(id);
         // row 有可能为空, 因为 pid 在id列中没有, 而是指向其他表, 或者错误
         if ( row == null ) {
@@ -176,13 +176,13 @@ public class TreeTableHandler<T, R, ID> {
             return null;
         }
 
-        //R res = rowMapper.apply(row);
-        R        res      = resultMapper.mapProperties(row, lvl);
+        // parent 参数的作用: 自顶向下, 可将祖先的信息一直传递到叶子
+        R        res      = resultMapper.mapProperties(row, lvl, parent);
         List<ID> childIds = treeMeta.get(id);
         if ( childIds != null ) {
             List<R> children = new ArrayList<>();
             for ( ID cid : childIds ) {
-                R e = toTree0(cid, lvl+1);
+                R e = toTree0(cid, lvl+1, Optional.of(res));
                 if (e!=null) {
                     children.add(e);
                 }
@@ -224,7 +224,7 @@ public class TreeTableHandler<T, R, ID> {
 
     }
 
-    private void validateCircleRefer0( ID key, Set<ID> referLink, Set<ID> pidSet ) {
+    private void validateCircleRefer0(ID key, Set<ID> referLink, Set<ID> pidSet ) {
         referLink.add(key);
         List<ID> ids = treeMeta.get(key);
         if ( ids==null ) {
@@ -261,9 +261,10 @@ public class TreeTableHandler<T, R, ID> {
          * 如无需转换, 类型, 可将设置 T==R, 这里原样返回.
          * @param row 关系表的数据行
          * @param lvl 当前层级. 0 开始
+         * @param parent 父节点, 自顶向下, 可将祖先的信息一直传递到叶子
          * @return 定制行数据结果封装
          */
-        R mapProperties(T row, int lvl);
+        R mapProperties(T row, int lvl, Optional<R> parent);
 
         /**
          * 当子集数据准备好后调用. <em>通常你需要</em>, <code>parent.setChildren(children)</code>.

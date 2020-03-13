@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * 数字运算算子工具类
@@ -145,6 +146,15 @@ public class Operator {
         return !isNull() ? get() : other;
     }
 
+    /**
+     * Return the value if present, otherwise invoke {@code other} and return
+     * the result of that invocation.
+     * @param other
+     * @return
+     */
+    public Number orElseGet(Supplier<? extends Number> other) {
+        return isNotNull() ? get() : other.get();
+    }
 
     // /**如非必要不建议此方法获取原始值, 因为设置的Rule将会失效.
     //  * 破坏整个逻辑链条.

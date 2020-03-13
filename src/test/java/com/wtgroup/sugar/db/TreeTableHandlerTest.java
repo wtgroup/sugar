@@ -3,10 +3,7 @@ package com.wtgroup.sugar.db;
 import com.alibaba.fastjson.JSON;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class TreeTableHandlerTest {
@@ -32,7 +29,7 @@ public class TreeTableHandlerTest {
                 row -> (Integer) row.get("pid"),
                 new TreeTableHandler.ResultMapper<Map, Map>() {
                     @Override
-                    public Map mapProperties( Map row , int lvl) {
+                    public Map mapProperties( Map row , int lvl, Optional<Map> parent) {
                         HashMap res = new HashMap();
                         res.put("rid", row.get("id"));
                         res.put("rpid", row.get("pid"));

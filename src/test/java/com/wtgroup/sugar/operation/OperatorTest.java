@@ -9,6 +9,16 @@ import static org.junit.Assert.*;
 public class OperatorTest {
 
     @Test
+    public void orElseGet() {
+        Operator a = Operator.ofNullable(null, Operator.Rule.NOT_NULL_AS_ZERO);
+        Number number = a.orElseGet(() -> 8);
+        System.out.println(number);
+        Number number1 = a.orElseGet(() -> null);
+        System.out.println(number1);
+    }
+
+
+    @Test
     public void round() {
         // (5*6 + 7) / 8
         System.out.println((5*6 + 7) / 8.0);

@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -301,6 +302,19 @@ public class Operator {
 
     public boolean isNotNull() {
         return !isNull();
+    }
+
+    /**
+     * If a value is present, invoke the specified consumer with the value,
+     * otherwise do nothing.
+     *
+     * @param consumer block to be executed if a value is present
+     * @throws NullPointerException if value is present and {@code consumer} is
+     * null
+     */
+    public void ifPresent(Consumer<? super Number> consumer) {
+        if (isNotNull())
+            consumer.accept(value);
     }
 
     @Data

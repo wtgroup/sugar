@@ -179,7 +179,7 @@ public class TreeTableHandler<T, R, ID> {
         // parent 参数的作用: 自顶向下, 可将祖先的信息一直传递到叶子
         R        res      = resultMapper.mapProperties(row, lvl, parent);
         List<ID> childIds = treeMeta.get(id);
-        if ( childIds != null ) {
+        if ( childIds != null && childIds.size() > 0) {
             List<R> children = new ArrayList<>();
             for ( ID cid : childIds ) {
                 R e = toTree0(cid, lvl+1, Optional.of(res));
@@ -191,6 +191,8 @@ public class TreeTableHandler<T, R, ID> {
             // 设置 children
             // 对子集数据聚合运算, 并将结果封装进 parent
             resultMapper.onChildren(res, children);
+        }else {
+            resultMapper.onChildren(res, null);
         }
         return res;
     }

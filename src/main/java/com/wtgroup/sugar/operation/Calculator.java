@@ -68,7 +68,7 @@ public class Calculator {
     /**
      * 算子
      */
-    static class Num {
+    public static class Num {
         /**全局唯一的, 代表 null Number
          * 在判null时, 关于null的规则不适用
          * Common instance for {@code empty()}.

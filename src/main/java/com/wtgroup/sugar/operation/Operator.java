@@ -26,6 +26,7 @@ import java.util.function.Supplier;
  * @author dafei
  * @version 0.1
  * @date 2019/11/25 12:42
+ * @deprecated
  */
 public class Operator {
 

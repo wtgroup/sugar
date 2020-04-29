@@ -83,6 +83,10 @@ System.out.println(JSON.toJSONString(results, true));
     
 ```
 
+## 数字计算器工具类 `com.wtgroup.sugar.operation.Calculator`
+在不知道计算因子是否为null时, 多个数字为了处理 Null Exception 很是麻烦.
+使用本工具类, 则不用关系是否为null的问题.
+demo: `com.wtgroup.sugar.operation.CalculatorTest`
 
 ## `TypeDescor`
 

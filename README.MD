@@ -25,12 +25,66 @@
 ```
 
 
+## 父子表解析器 `TreeTableHandler`
+将DB父子表格式的表格数据解析成java的树形结构.
+代码参见: `com.wtgroup.sugar.db.TreeTableHandlerTest`
+```
+// DB数据格式样例:
+id pid ...
+1  null   
+2  1      
+3  1      
+4  2      
+5  2      
+6  3  
+
+// 解析
+// 模拟数据
+List<Map> data = mock();
+
+// to tree
+// p1: DB查询到原始数据集
+// p2: 指定 id 获取方式
+// p3: pid 获取方式
+// p4: 原始数据行向java树节点的转换方式
+TreeTableHandler<Map, Map, Integer> treeTableHandler = new TreeTableHandler<>(data,
+        row -> (Integer) row.get("id"),
+        row -> (Integer) row.get("pid"),
+        new TreeTableHandler.ResultMapper<Map, Map>() {
+            @Override
+            public Map mapProperties( Map row , int lvl, Optional<Map> parent) {
+                HashMap res = new HashMap();
+                res.put("rid", row.get("id"));
+                res.put("rpid", row.get("pid"));
+                res.put("rgdp", row.get("gdp"));
+                res.put("rpopulation", row.get("population"));
+                res.put("lvl", lvl);
+                return res;
+            }
+
+            // 当子集数据就绪时调用
+            @Override
+            public void onChildren( Map parent, List<Map> children ) {
+                parent.put("children", children);
+                parent.put("count", children.size());
+                int s = 0;
+                for ( Map child : children ) {
+                    s += (int)child.get("rgdp");
+                }
+                parent.put("sum", s);
+            }
+        }
+);
+
+// 转换成树
+List<Map> results = treeTableHandler.toTree();
+// System.out.println(treeTableHandler.getTreeMeta());
+System.out.println(JSON.toJSONString(results, true));
+    
+```
 
 
-
-
-
-## TypeDescor
+## `TypeDescor`
 
 将类型表达式转换成`Type`类型.
 

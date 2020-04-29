@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -121,6 +122,20 @@ public class Calculator {
         public Number orElseGet(Supplier<? extends Number> other) {
             return notNull() ? get() : other.get();
         }
+
+        /**
+         * If a value is present, invoke the specified consumer with the value,
+         * otherwise do nothing.
+         *
+         * @param consumer block to be executed if a value is present
+         * @throws NullPointerException if value is present and {@code consumer} is
+         * null
+         */
+        public void ifPresent(Consumer<? super Number> consumer) {
+            if (notNull())
+                consumer.accept(value);
+        }
+
 
         public Num div(Number other) {
             Num n = Num.ofNullable(other, rule);

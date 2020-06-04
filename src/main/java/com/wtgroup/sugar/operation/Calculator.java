@@ -268,6 +268,11 @@ public class Calculator {
         public boolean notNull() {
             return !isNull();
         }
+
+        @Override
+        public String toString() {
+            return String.valueOf(value);
+        }
     }
 
     @Data

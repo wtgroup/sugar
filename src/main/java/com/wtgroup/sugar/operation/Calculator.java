@@ -280,6 +280,8 @@ public class Calculator {
     public static class Rule {
         public static final Rule DEFAULT = new Rule(true,true,true);
         public static final Rule NOT_NULL_AS_ZERO = new Rule(false,true,true);
+        /**严格模式*/
+        public static final Rule STRICT_MODE = new Rule(false, false, false);
         private boolean nullAsZero;
         private boolean nanAsZero;
         private boolean infinityAsZero;

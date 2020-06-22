@@ -32,6 +32,15 @@ public class CalculatorTest {
 
     }
 
+    @Test
+    public void foo3() {
+        Calculator clc = Calculator.create(Calculator.Rule.STRICT_MODE);
+        clc.of(0).div((Number)0).sub(1).ifPresent(e->{
+            System.out.println(e);
+        });
+    }
+
+
 
 
     @Test

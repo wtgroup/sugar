@@ -157,13 +157,14 @@ public class Calculator {
                         return Num.ofNullable(n, rule);
                     }
                 }
-
                 // 0 / 0 NaN
-                if (isZero()) {
+                else {
                     if (rule.nanAsZero) {
                         return Num.ofNullable(0, rule);
                     }else{
-                        return Num.ofNullable(Double.NaN, rule);
+                        // return Num.ofNullable(Double.NaN, rule);
+                        // 'NaN' 无法运算  改为返回 empty
+                        return EMPTY;
                     }
                 }
             }

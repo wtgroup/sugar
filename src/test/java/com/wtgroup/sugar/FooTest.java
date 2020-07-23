@@ -1,5 +1,6 @@
 package com.wtgroup.sugar;
 
+import com.google.common.base.CaseFormat;
 import org.junit.Test;
 
 /**
@@ -8,6 +9,15 @@ import org.junit.Test;
  * @date 2019/12/2 15:34
  */
 public class FooTest {
+
+    @Test
+    public void foo2() {
+        String s = "userNameHello";
+        // String to = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, s);
+        String to = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, s);
+        System.out.println(to);
+    }
+
 
     @Test
     public void foo() {

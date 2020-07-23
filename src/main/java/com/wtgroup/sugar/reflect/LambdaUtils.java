@@ -1,5 +1,8 @@
 package com.wtgroup.sugar.reflect;
 
+import com.google.common.base.CaseFormat;
+import lombok.Data;
+
 import java.beans.Introspector;
 import java.lang.invoke.SerializedLambda;
 import java.lang.ref.WeakReference;
@@ -15,8 +18,12 @@ import java.util.concurrent.ConcurrentHashMap;
  *  ! 特殊格式的字段名少用, 如若需要, 请确保符合预期 !
  * </p>
  *
+ * -- v1.0 2020年7月23日 --
+ * 提高易用性, 增加可随时转换变量风格的方法.
+ *
+ * -- 0.1 --
  * @author dafei
- * @version 0.1
+ * @version 1.0
  * @date 2019/11/29 15:44
  */
 public class LambdaUtils {
@@ -29,7 +36,62 @@ public class LambdaUtils {
     public static final String PREFIX_SET = "set";
     public static final String WRITE_REPLACE = "writeReplace";
 
+    @Data
+    public static class Origin {
+        private CaseFormat caseFormat;
+        private String fieldName;
 
+        public Origin() {
+        }
+
+        public Origin(String fieldName, CaseFormat caseFormat) {
+            this.fieldName = fieldName;
+            this.caseFormat = caseFormat;
+        }
+
+        /**指定要转换的目标格式
+         * @param convertFormat
+         * @return
+         */
+        public String to(CaseFormat convertFormat) {
+            return this.caseFormat.to(convertFormat, this.fieldName);
+        }
+
+        /**原样输出字段名
+         * @return
+         */
+        public String toString() {
+            return this.fieldName;
+        }
+    }
+
+    /**默认认为字段是常规的驼峰格式啦 {@link CaseFormat#LOWER_CAMEL}
+     * @param fn
+     * @param <T>
+     * @return
+     */
+    public static <T> Origin of(Fn<T, ?> fn) {
+        return of(fn, CaseFormat.LOWER_CAMEL);
+    }
+
+    /**
+     * @param fn
+     * @param originCaseFormat 字段名原始case格式, 格式枚举: {@link com.google.common.base.CaseFormat}
+     * @param <T>
+     * @return
+     */
+    public static <T> Origin of(Fn<T, ?> fn, CaseFormat originCaseFormat) {
+        String fname = fieldName(fn);
+        Origin fnhd = new Origin(fname, originCaseFormat);
+        return fnhd;
+    }
+
+
+    /**获取原始的字段名, 即不做格式转换.
+     * @param fn
+     * @param <T>
+     * @return
+     */
     public static <T> String fieldName(Fn<T, ?> fn) {
         // User::getName 和 User::getAge , class 不同
         Class<? extends Fn> clazz = fn.getClass();
@@ -52,6 +114,7 @@ public class LambdaUtils {
                         Method method = clazz.getDeclaredMethod(WRITE_REPLACE);
                         method.setAccessible(Boolean.TRUE);
                         lambda = (SerializedLambda) method.invoke(fn);
+                        method.setAccessible(Boolean.FALSE);
                     } catch (Exception e) {
                         throw new RuntimeException("method `writeReplace` call fail, get SerializedLambda of " + clazz.getName() + "fail");
                     }

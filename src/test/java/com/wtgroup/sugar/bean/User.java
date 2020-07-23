@@ -14,4 +14,5 @@ public class User {
 
     private String i_am_xia_Huaxian;
 
+    private String helloFieldNameUtils;
 }

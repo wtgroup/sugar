@@ -58,6 +58,12 @@
             <artifactId>hutool-all</artifactId>
             <version>4.5.11</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0</version>
+        </dependency>
 
 
     </dependencies>

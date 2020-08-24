@@ -116,7 +116,7 @@ public class LambdaUtils {
                         lambda = (SerializedLambda) method.invoke(fn);
                         method.setAccessible(Boolean.FALSE);
                     } catch (Exception e) {
-                        throw new RuntimeException("method `writeReplace` call fail, get SerializedLambda of " + clazz.getName() + "fail");
+                        throw new RuntimeException("method `writeReplace` call fail, get SerializedLambda of `" + clazz.getName() + "` fail");
                     }
                     FUNC_CACHE.put(clazz, new WeakReference<>(lambda));
                     return lambda;

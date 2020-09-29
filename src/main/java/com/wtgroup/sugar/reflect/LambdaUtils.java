@@ -31,10 +31,10 @@ public class LambdaUtils {
      * SerializedLambda 反序列化缓存
      */
     private static final Map<Class<?>, WeakReference<SerializedLambda>> FUNC_CACHE = new ConcurrentHashMap<>();
-    public static final String PREFIX_IS = "is";
-    public static final String PREFIX_GET = "get";
-    public static final String PREFIX_SET = "set";
-    public static final String WRITE_REPLACE = "writeReplace";
+    private static final String PREFIX_IS = "is";
+    private static final String PREFIX_GET = "get";
+    private static final String PREFIX_SET = "set";
+    private static final String WRITE_REPLACE = "writeReplace";
 
     @Data
     public static class Origin {
@@ -60,6 +60,7 @@ public class LambdaUtils {
         /**原样输出字段名
          * @return
          */
+        @Override
         public String toString() {
             return this.fieldName;
         }

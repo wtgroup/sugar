@@ -33,25 +33,33 @@ public class Byter implements Comparable<Byter>, Serializable {
     //1024 NB = 1 DB （DoggaByte）刀字节
     //</editor-fold>
     static final int BIT_PER_BYTE = 8;
-//    static final long KB = K;
-//    static final long MB = KB * K;
-//    static final long GB = MB * K;
-//    static final long TB = GB * K;
-//    static final long PB = TB * K;
-//    static final long B_PER_EB = PB * K;
-//    static final BigInteger B_PER_ZB = BigInteger.valueOf(B_PER_EB * K);
-//    static final BigInteger B_PER_YB = BigInteger.valueOf(B_PER_ZB * K);
-//    static final BigInteger B_PER_BB = BigInteger.valueOf(B_PER_YB * K);
-//    static final BigInteger B_PER_NB = BigInteger.valueOf(B_PER_BB * K);
-//    static final BigInteger B_PER_DB = BigInteger.valueOf(B_PER_NB * K);
+   // static final long KB = K;
+   // static final long MB = KB * K;
+   // static final long GB = MB * K;
+   // static final long TB = GB * K;
+   // static final long PB = TB * K;
+   // static final long B_PER_EB = PB * K;
+   // static final BigInteger B_PER_ZB = BigInteger.valueOf(B_PER_EB * K);
+   // static final BigInteger B_PER_YB = BigInteger.valueOf(B_PER_ZB * K);
+   // static final BigInteger B_PER_BB = BigInteger.valueOf(B_PER_YB * K);
+   // static final BigInteger B_PER_NB = BigInteger.valueOf(B_PER_BB * K);
+   // static final BigInteger B_PER_DB = BigInteger.valueOf(B_PER_NB * K);
 
     enum ByteUnit {
+        // Byte
         B(1, "B"),
+        // Kilobyte
         KB(K, "KB"),
+        // Megabyte
         MB(K*KB.value,"MB"),
+        // Gigabyte
         GB(K*MB.value,"GB"),
+        // Trillionbyte
         TB(K*GB.value,"TB"),
+        // Petabyte
         PB(K*TB.value,"PB"),
+        // Exabyte
+        EB(K*PB.value,"EB"),
         ;
         private long value;
         private String unit;
@@ -77,7 +85,7 @@ public class Byter implements Comparable<Byter>, Serializable {
         this.bytes = bytes;
     }
 
-    public static Byter ofBytes(long bytes) {
+    public static Byter ofB(long bytes) {
         if (bytes == 0) {
             return ZERO;
         }
@@ -119,8 +127,15 @@ public class Byter implements Comparable<Byter>, Serializable {
         return new Byter(Math.multiplyExact(ByteUnit.PB.value, pb));
     }
 
+    public static Byter ofEB(long eb) {
+        if (eb == 0) {
+            return ZERO;
+        }
+        return new Byter(Math.multiplyExact(ByteUnit.EB.value, eb));
+    }
 
-    public long toBytes() {
+
+    public long toB() {
         return bytes;
     }
 
@@ -136,12 +151,16 @@ public class Byter implements Comparable<Byter>, Serializable {
         return (float)bytes / ByteUnit.GB.value;
     }
 
-    public float TB() {
+    public float toTB() {
         return (float)bytes / ByteUnit.TB.value;
     }
 
     public float toPB() {
         return (float)bytes / ByteUnit.PB.value;
+    }
+
+    public float toEB() {
+        return (float)bytes / ByteUnit.EB.value;
     }
 
 
@@ -150,12 +169,13 @@ public class Byter implements Comparable<Byter>, Serializable {
         return Long.compare(this.bytes, otherByter.bytes);
     }
 
+    // todo 简单的保留 3 位小数的string , 改为 'toShortString', toString 仿照 Duration , 1G2M3K4B
     @Override
     public String toString() {
         float size = 0;
         String unit = "B";
         if (bytes < ByteUnit.KB.value) {
-            size=this.toBytes();
+            size=this.toB();
             unit = ByteUnit.B.unit;
         } else if (bytes < ByteUnit.MB.value) {
             size=this.toKB();
@@ -171,8 +191,5 @@ public class Byter implements Comparable<Byter>, Serializable {
         return THREE_DECIMALS_FORMATER.format(size) + unit;
     }
 
-    public static void main(String[] args) {
-        System.out.println(Byter.ofBytes(1099511676527776L));
-        System.out.println(Byter.ofGB(2).toKB());
-    }
+
 }

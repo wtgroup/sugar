@@ -106,6 +106,17 @@ public class LambdaUtils {
         return methodToProperty(getter);
     }
 
+    /**直接输出 LOWER_UNDERSCORE 风格的字段名
+     *
+     * 很多时候想要获取DB字段名, 可以用此方法.
+     * @param fn
+     * @param <T>
+     * @return
+     */
+    public static <T> String fieldNameLowerUnderscore(Fn<T, ?> fn) {
+        return of(fn).to(CaseFormat.LOWER_UNDERSCORE);
+    }
+
     private static SerializedLambda getSerializedLambda(Fn<?, ?> fn, Class<? extends Fn> clazz) {
         return Optional.ofNullable(FUNC_CACHE.get(clazz))
                 .map(WeakReference::get)

@@ -13,6 +13,9 @@ import java.util.function.Supplier;
 /**
  * 计算器工具类
  *
+ * == 2020-12-28 ==
+ * - NOT_NULL_AS_ZERO 改名为 NO_NULL_AS_ZERO , not->no, 避免歧义, no 表示取反. not null 容易误解为 '非空'
+ * - 新增 `com.wtgroup.sugar.operation.Calculator#strict()`
  * {@link Operator} 的重构版
  * @author dafei
  * @version 0.1
@@ -33,8 +36,21 @@ public class Calculator {
         return create(Rule.DEFAULT);
     }
 
-    public static Calculator notNullAsZero() {
-        return create(Rule.NOT_NULL_AS_ZERO);
+    public static Calculator noNullAsZero() {
+        return create(Rule.NO_NULL_AS_ZERO);
+    }
+
+    /**
+     * # 严格规则
+     *
+     * ```
+     * Rule(false, false, false)
+     * ```
+     *
+     * @return
+     */
+    public static Calculator strict() {
+        return create(Rule.STRICT_MODE);
     }
 
     public static Calculator create(Rule rule) {
@@ -280,7 +296,7 @@ public class Calculator {
     @Accessors(chain = true)
     public static class Rule {
         public static final Rule DEFAULT = new Rule(true,true,true);
-        public static final Rule NOT_NULL_AS_ZERO = new Rule(false,true,true);
+        public static final Rule NO_NULL_AS_ZERO = new Rule(false,true,true);
         /**严格模式*/
         public static final Rule STRICT_MODE = new Rule(false, false, false);
         private boolean nullAsZero;

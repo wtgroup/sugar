@@ -2,8 +2,6 @@ package com.wtgroup.sugar.operation;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class CalculatorTest {
 
     @Test
@@ -20,7 +18,7 @@ public class CalculatorTest {
 
     @Test
     public void foo2() {
-        Calculator c = Calculator.notNullAsZero();
+        Calculator c = Calculator.noNullAsZero();
         // 或
         // Calculator c = Calculator.create(Calculator.Rule.NOT_NULL_AS_ZERO);
 

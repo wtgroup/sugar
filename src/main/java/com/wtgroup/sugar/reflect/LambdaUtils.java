@@ -12,11 +12,15 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * LambdaUtils
  * <p>
  *  遵循 Java 的字段, getter, setter 命名规范.
  *  错误示例: private boolean isMale, 应为 private boolean male.
  *  ! 特殊格式的字段名少用, 如若需要, 请确保符合预期 !
  * </p>
+ *
+ * -- 2021年1月12日 --
+ * Origin 类的属性改为 final .
  *
  * -- v1.0 2020年7月23日 --
  * 提高易用性, 增加可随时转换变量风格的方法.
@@ -117,6 +121,21 @@ public class LambdaUtils {
         return of(fn).to(CaseFormat.LOWER_UNDERSCORE);
     }
 
+    /**
+     * Get SerializedLambda
+     * <p>
+     * Q: Function 不行, 自己定义的 Fn 就可以<br>
+     * A: 关键是 Serializable 接口, 才有 writeReplace 方法.
+     *
+     * 如果一个序列化类中含有Object writeReplace()方法，那么实际序列化的对象将是作为 writeReplace 方法返回值的对象，
+     * 而且序列化过程的依据是该返回对象的序列化实现。
+     * 就是说, A.writeReplace return B, 那么序列化 A 时, 实际序列化的将是 B . 和 A 无关.
+     * 正式 "替换写" 的语义.
+     * 这样, Fn 作为 Lambda , (1)存在 writeReplace 方法, (2)该方法返回 SerializedLambda .
+     * 故, 拿到该方法, 进而可以去到字段名(Lambda元数据之一).
+     * @param fn Lambda
+     * @param clazz key
+     */
     private static SerializedLambda getSerializedLambda(Fn<?, ?> fn, Class<? extends Fn> clazz) {
         return Optional.ofNullable(FUNC_CACHE.get(clazz))
                 .map(WeakReference::get)

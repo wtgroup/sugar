@@ -1,6 +1,6 @@
 
 
-# sugar(糖)
+# sugar(_糖_)
 
 > 提供一些好用的工具方法. 就像一些好吃的糖果.
 
@@ -18,9 +18,9 @@
 
 <!--增加依赖-->
 <dependency>
-    <groupId>com.github.Nisus-Liu</groupId>
+    <groupId>com.github.wtgroup</groupId>
     <artifactId>sugar</artifactId>
-    <version>{version}</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 

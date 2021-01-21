@@ -9,6 +9,5 @@ import java.util.function.Function;
  * @author miemie
  * @since 2018-05-12
  */
-// @FunctionalInterface
 public interface Fn<T, R> extends Function<T, R>, Serializable {
 }

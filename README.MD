@@ -88,6 +88,27 @@ System.out.println(JSON.toJSONString(results, true));
 使用本工具类, 则不用关系是否为null的问题.
 demo: `com.wtgroup.sugar.operation.CalculatorTest`
 
+## `Lambda` 工具: 方法名-->字段名 (`com.wtgroup.sugar.reflect.LambdaUtil`)
+
+目前主要功能是将类的`getter`方法`Lambda`解析成对应的属性名.
+
+你有没有这样的感受? 比如在查表中的某些字段时, 不得不硬编码这些字段名. 当表有所变动时, 不得不用肉眼检查相关代码, 同步调整.
+有了这个工具, 便可以利用编辑器帮你检查. 如果只是简单修改字段名, 仅仅利用编辑器的重构, 代码就同步修改好了. 
+
+```java
+// com.wtgroup.sugar.reflect.LambdaUtilsTest
+String s = LambdaUtil.fieldName(User::getUname);
+System.out.println(s);                                      // => uname
+String s1 = LambdaUtil.fieldName(User::getAge);
+System.out.println(s1);                                     // => age
+System.out.println(LambdaUtil.fieldName(User::isMale));    // => male
+
+LambdaUtils.Origin lamb = LambdaUtil.of(User::getHelloFieldNameUtils);
+System.out.println(lamb.getFieldName());                    // 原样 helloFieldNameUtils
+System.out.println(lamb.to(CaseFormat.UPPER_UNDERSCORE));   // => HELLO_FIELD_NAME_UTILS
+```
+
+
 ## `TypeDescor`
 
 将类型表达式转换成`Type`类型.
@@ -167,3 +188,11 @@ demo: `com.wtgroup.sugar.operation.CalculatorTest`
 
 
 参见示例代码: [com.wtgroup.sugar.typedescor.TypeDescorTest](./src/test/java/com/wtgroup/sugar/typedescor/TypeDescorTest.java)
+
+
+
+## TODO
+
+- [ ] `LambdaUtils` case format 与实际不对应时, 转换有问题.
+    需要: 提供检测类型的方法.
+

@@ -8,39 +8,38 @@ import com.wtgroup.sugar.bean.User;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.function.Function;
 
 public class LambdaUtilsTest {
 
     @Test
     public void foo1() {
-        System.out.println(LambdaUtils.fieldName(User::getI_am_xia_Huaxian));
+        System.out.println(LambdaUtil.fieldName(User::getI_am_xia_Huaxian));
     }
 
 
     @Test
     public void fnToFieldName() {
-        String s = LambdaUtils.fieldName(User::getUname);
-        System.out.println(s);
-        String s1 = LambdaUtils.fieldName(User::getAge);
-        System.out.println(s1);
-        System.out.println(LambdaUtils.fieldName(User::getTags));
-        System.out.println(LambdaUtils.fieldName(User::isMale));
+        String s = LambdaUtil.fieldName(User::getUname);
+        System.out.println(s);                                      // => uname
+        String s1 = LambdaUtil.fieldName(User::getAge);
+        System.out.println(s1);                                     // => age
+        System.out.println(LambdaUtil.fieldName(User::isMale));    // => male
+
+        LambdaUtil.Origin lamb = LambdaUtil.lowerCamel(User::getHelloFieldNameUtils);
+        System.out.println(lamb.getFieldName());                    // 原样 helloFieldNameUtils
+        System.out.println(lamb.to(CaseFormat.UPPER_UNDERSCORE));   // => HELLO_FIELD_NAME_UTILS
+
     }
 
 
     @Test
     public void foo2() {
-        System.out.println(LambdaUtils.of(User::getHelloFieldNameUtils).to(CaseFormat.LOWER_UNDERSCORE));
-        System.out.println(LambdaUtils.of(User::getHelloFieldNameUtils).toString());
-        System.out.println(LambdaUtils.of(User::getI_am_xia_Huaxian).to(CaseFormat.UPPER_CAMEL));
-        System.out.println(LambdaUtils.of(User::getI_am_xia_Huaxian).to(CaseFormat.UPPER_UNDERSCORE));
-        System.out.println(LambdaUtils.of(User::getI_am_xia_Huaxian).toString());
-        // hello_field_name_utils
-        // helloFieldNameUtils
-        // I_am_xia_Huaxian
-        // I_AM_XIA__HUAXIAN
-        // i_am_xia_Huaxian
+        System.out.println(LambdaUtil.lowerCamel(User::getHelloFieldNameUtils).to(CaseFormat.LOWER_UNDERSCORE)); // => hello_field_name_utils
+        System.out.println(LambdaUtil.lowerCamel(User::getHelloFieldNameUtils).toString()); // => helloFieldNameUtils
+        System.out.println(LambdaUtil.lowerCamelToLowerUnderscore(User::getHelloFieldNameUtils)); // => hello_field_name_utils
+        System.out.println(LambdaUtil.of(User::getI_am_xia_Huaxian, CaseFormat.LOWER_UNDERSCORE).to(CaseFormat.UPPER_CAMEL)); // => IAmXiaHuaxian
+        System.out.println(LambdaUtil.of(User::getI_am_xia_Huaxian, CaseFormat.LOWER_UNDERSCORE).to(CaseFormat.LOWER_CAMEL)); // => iAmXiaHuaxian
+        System.out.println(LambdaUtil.lowerCamel(User::getI_am_xia_Huaxian).toString()); // => i_am_xia_Huaxian
     }
 
     @Test

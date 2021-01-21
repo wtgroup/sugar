@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version 1.0
  * @date 2019/11/29 15:44
  */
-public class LambdaUtils {
+public class LambdaUtil {
     /**
      * SerializedLambda 反序列化缓存
      */
@@ -61,7 +61,7 @@ public class LambdaUtils {
             return this.caseFormat.to(convertFormat, this.fieldName);
         }
 
-        /**原样输出字段名
+        /**输出字段名
          * @return
          */
         @Override
@@ -70,20 +70,25 @@ public class LambdaUtils {
         }
     }
 
-    /**默认认为字段是常规的驼峰格式啦 {@link CaseFormat#LOWER_CAMEL}
+    /**
+     * 驼峰风格字段 {@link CaseFormat#LOWER_CAMEL}
+     *
+     * 等价 {@code of(fn, CaseFormat.LOWER_CAMEL)}
+     * Note: 指定风格与实际不符时, 会出现非预期结果.
      * @param fn
      * @param <T>
      * @return
      */
-    public static <T> Origin of(Fn<T, ?> fn) {
+    public static <T> Origin lowerCamel(Fn<T, ?> fn) {
         return of(fn, CaseFormat.LOWER_CAMEL);
     }
 
     /**
+     * 构建包含 CaseFormat 信息的 Origin, 方便后续更多操作.
      * @param fn
      * @param originCaseFormat 字段名原始case格式, 格式枚举: {@link com.google.common.base.CaseFormat}
      * @param <T>
-     * @return
+     * @return Origin
      */
     public static <T> Origin of(Fn<T, ?> fn, CaseFormat originCaseFormat) {
         String fname = fieldName(fn);
@@ -110,15 +115,17 @@ public class LambdaUtils {
         return methodToProperty(getter);
     }
 
-    /**直接输出 LOWER_UNDERSCORE 风格的字段名
+    /**针对 LOWER_CAMEL POJO 字段直接输出 LOWER_UNDERSCORE 风格的字段名
      *
      * 很多时候想要获取DB字段名, 可以用此方法.
+     *
+     * 等价 {@code of(fn, CaseFormat.LOWER_CAMEL).to(CaseFormat.LOWER_UNDERSCORE)}
      * @param fn
      * @param <T>
      * @return
      */
-    public static <T> String fieldNameLowerUnderscore(Fn<T, ?> fn) {
-        return of(fn).to(CaseFormat.LOWER_UNDERSCORE);
+    public static <T> String lowerCamelToLowerUnderscore(Fn<T, ?> fn) {
+        return of(fn, CaseFormat.LOWER_CAMEL).to(CaseFormat.LOWER_UNDERSCORE);
     }
 
     /**
@@ -155,7 +162,7 @@ public class LambdaUtils {
     }
 
     /**
-     * 参考: org.apache.ibatis.reflection.property.PropertyNamer#methodToProperty
+     * 参考: {@code org.apache.ibatis.reflection.property.PropertyNamer#methodToProperty}
      * @param name
      * @return
      */

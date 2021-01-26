@@ -83,6 +83,80 @@ System.out.println(JSON.toJSONString(results, true));
     
 ```
 
+## 注解"组合"
+
+有点类似 `org.springframework.core.annotation.AliasFor` . 但使用场景刚好相反. 其间差别, 需要耐心品味. 需要理解 Spring 的 `AliasFor` 机制. 
+
+假设 `@A` 是别人的注解, 无法改动, 且不能作为元注解. 但你需要在 `@A` 基础上增加一些属性, 增强功能. 但很多属性想沿用 `A` 的. 比如 `B.a` 等价 `A.a` , 
+在 `B.a` 有效时, 用 `B.a`, 否则看`A.a`是否可用. 就好像 `B` 组装|继承了 `A.a`. 此外, `B` 还可以有其他自己特有的属性, 如 `B.b`.
+```
+        know
+ A a <------+ API User
+   ^            +
+'@AliasFor'     |
+   |            | maybe unknown
+   +            |
+ B a  <---------+
+
+
+  A a <-----------+
+    ^             |
+'@Composite'  maybe|unknown
+    |             |
+    +    know     +
+  B a <------+ API User
+```
+
+**演示**
+
+```
+// A 注解
+
+String a() default "A.a";
+```
+
+```
+// B 注解
+
+// a 属性组合 A.a , 自己的 a 无效时, 就会去找 A.a, 如果有效, 则用 A.a ,
+// 此处, '无效' 已就是只有默认值, 使用者没有显示设置值. 
+// @Composite(value = "a", annotation = A.class) // 或简写为: (默认采用当前属性方法名)
+@Composite(annotation = A.class)
+String a() default "B.a";
+
+String b();
+```
+
+```
+// 被注解bean, AnnotatedElement
+public class AnnotatedBean {
+
+    // 预期: B.a == "AAAAAAAAAAAAA.aaaaa"
+    @B(b = "B.b")
+    @A(a = "AAAAAAAAAAAAA.aaaaa")
+    private String case1;
+
+    // 预期: B.a == "BBBBBBBBBBBBB.bbbbb"
+    @B(a = "BBBBBBBBBBBBB.bbbbb", b="B.b")
+    @A(a = "AAAAAAAAAAAAA.aaaaa")
+    private Integer case2;
+
+}
+```
+
+`CompositeAnnotationUtil.getCompositeAnnotation`
+```
+Field case1 = AnnotatedBean.class.getDeclaredField("case1");
+B composite = CompositeAnnotationUtil.getCompositeAnnotation(B.class, case1);
+Assert.assertEquals("case1", "AAAAAAAAAAAAA.aaaaa", composite.a());
+Assert.assertEquals("B.b", composite.b());
+```
+
+详情参考: `com.wtgroup.sugar.annotation.CompositeAnnotationUtilTest`.
+
+
+
+
 ## 数字计算器工具类 `com.wtgroup.sugar.operation.Calculator`
 在不知道计算因子是否为null时, 多个数字为了处理 Null Exception 很是麻烦.
 使用本工具类, 则不用关系是否为null的问题.

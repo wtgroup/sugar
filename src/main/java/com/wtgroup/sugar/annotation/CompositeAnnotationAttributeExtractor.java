@@ -2,6 +2,7 @@ package com.wtgroup.sugar.annotation;
 
 
 
+import lombok.Getter;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -15,7 +16,9 @@ import java.lang.reflect.Method;
  */
 public class CompositeAnnotationAttributeExtractor {
 
+    @Getter
     private final Annotation annotation;
+    @Getter
     private final AnnotatedElement annotatedElement;
     private final Class<? extends Annotation> annotationType;
 
@@ -70,14 +73,18 @@ public class CompositeAnnotationAttributeExtractor {
     //     return (attributeMethod != null ? getRawAttributeValue(attributeMethod) : null);
     // }
 
-    protected Object getSource() {
-        return this.annotation;
-    }
 
     protected Class<? extends Annotation> getAnnotationType() {
         return this.annotationType;
     }
 
+    @Override
+    public String toString() {
+        return "CompositeAnnotationAttributeExtractor{" +
+                "annotation=" + annotation +
+                ", annotatedElement=" + annotatedElement +
+                '}';
+    }
 
     protected static Object getRawAttributeValue(Method attributeMethod, Object source) {
         ReflectionUtils.makeAccessible(attributeMethod);

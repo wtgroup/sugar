@@ -1,12 +1,9 @@
 package com.wtgroup.sugar.annotation;
 
-import cn.hutool.core.comparator.CompareUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
-
-import static org.junit.Assert.*;
 
 public class CompositeAnnotationUtilTest {
 
@@ -14,18 +11,17 @@ public class CompositeAnnotationUtilTest {
     public void foo() {
         Field[] fields = AnnotatedBean.class.getDeclaredFields();
         for (Field field : fields) {
-            B b = field.getAnnotation(B.class);
-            if (b!=null) {
-                B composite = CompositeAnnotationUtil.composite(b, field);
+                B composite = CompositeAnnotationUtil.composite(B.class, field, false);
                 // case1
                 if (field.getName().equals("case1")) {
                     Assert.assertEquals("case1", "AAAAAAAAAAAAA.aaaaa", composite.a());
                     Assert.assertEquals("B.b", composite.b());
-                } else if (field.getName().equals("case2")) {
+                }
+                // case2
+                else if (field.getName().equals("case2")) {
                     Assert.assertEquals("case2", "BBBBBBBBBBBBB.bbbbb", composite.a());
                     Assert.assertEquals("B.b", composite.b());
                 }
-            }
         }
     }
 
@@ -37,6 +33,42 @@ public class CompositeAnnotationUtilTest {
         Assert.assertEquals("B.b", composite.b());
     }
 
+
+    @Test
+    public void foo3() throws NoSuchFieldException {
+        Field[] fields = AnnotatedBean.class.getDeclaredFields();
+        for (Field field : fields) {
+            B composite = CompositeAnnotationUtil.getNotNullCompositeAnnotation(B.class, field);
+            // case1
+            if (field.getName().equals("case1")) {
+                Assert.assertEquals("case1", "AAAAAAAAAAAAA.aaaaa", composite.a());
+                Assert.assertEquals("B.b", composite.b());
+            }
+            // case2
+            else if (field.getName().equals("case2")) {
+                Assert.assertEquals("case2", "BBBBBBBBBBBBB.bbbbb", composite.a());
+                Assert.assertEquals("B.b", composite.b());
+            }
+        }
+    }
+
+    @Test
+    public void foo4() throws NoSuchFieldException {
+        Field case3 = AnnotatedBean.class.getDeclaredField("case3");
+        // 获取没有的注解的 "组合" 实例
+        C composite = CompositeAnnotationUtil.getNotNullCompositeAnnotation(C.class, case3);
+        System.out.println(composite);
+    }
+
+
+    @Test
+    public void fun() throws NoSuchFieldException {
+        Field case3 = AnnotatedBean.class.getDeclaredField("case3");
+        A a = case3.getAnnotation(A.class);
+        String a1 = a.a();
+        System.out.println(a1);
+        // sun.reflect.annotation.AnnotationInvocationHandler;
+    }
 
 
 }

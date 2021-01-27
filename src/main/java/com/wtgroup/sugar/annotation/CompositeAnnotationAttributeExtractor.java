@@ -2,6 +2,8 @@ package com.wtgroup.sugar.annotation;
 
 
 
+import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -15,7 +17,9 @@ import java.lang.reflect.Method;
  */
 public class CompositeAnnotationAttributeExtractor {
 
-    private final Annotation annotation;
+    @Getter
+    private Annotation annotation;
+    @Getter
     private final AnnotatedElement annotatedElement;
     private final Class<? extends Annotation> annotationType;
 
@@ -25,6 +29,11 @@ public class CompositeAnnotationAttributeExtractor {
         this.annotationType = annotation.annotationType();
     }
 
+    public CompositeAnnotationAttributeExtractor(Class<? extends Annotation> annotationType, AnnotatedElement annotatedElement) {
+        this.annotation = null; // allowAbsent
+        this.annotatedElement = annotatedElement;
+        this.annotationType = annotationType;
+    }
 
     /**获取属性方法值
      *
@@ -35,8 +44,15 @@ public class CompositeAnnotationAttributeExtractor {
      */
     protected Object getAttributeValue(Method attributeMethod) {
         // 自身的本属性方法值
-        Object attributeValue = getRawAttributeValue(attributeMethod, this.annotation);
+        Object attributeValue = null;
         Object defaultValue = attributeMethod.getDefaultValue();
+        // 允许 annotation 为null, null 时, 所有属性取默认值.
+        if (this.annotation != null) {
+            attributeValue = getRawAttributeValue(attributeMethod, this.annotation);
+        } else {
+            attributeValue = defaultValue;
+        }
+
         if (attributeValue == null || attributeValue.equals(defaultValue)) {
             // 进一步, 看组合的注解的属性(@Composite指向的注解的属性)
             Composite composite = attributeMethod.getAnnotation(Composite.class);
@@ -70,14 +86,18 @@ public class CompositeAnnotationAttributeExtractor {
     //     return (attributeMethod != null ? getRawAttributeValue(attributeMethod) : null);
     // }
 
-    protected Object getSource() {
-        return this.annotation;
-    }
 
     protected Class<? extends Annotation> getAnnotationType() {
         return this.annotationType;
     }
 
+    @Override
+    public String toString() {
+        return "CompositeAnnotationAttributeExtractor{" +
+                "annotation=" + annotation +
+                ", annotatedElement=" + annotatedElement +
+                '}';
+    }
 
     protected static Object getRawAttributeValue(Method attributeMethod, Object source) {
         ReflectionUtils.makeAccessible(attributeMethod);

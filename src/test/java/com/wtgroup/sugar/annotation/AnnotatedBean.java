@@ -17,4 +17,10 @@ public class AnnotatedBean {
     @A(a = "AAAAAAAAAAAAA.aaaaa")
     private Integer case2;
 
+    // @C 省略不写
+    // 取 C 预期: @com.wtgroup.sugar.annotation.C(c=null, a=AAAAAAAAAAAAA.aaaaa, b=B.b)
+    @B(a = "BBBBBBBBBBBBB.bbbbb", b="B.b")
+    @A(a = "AAAAAAAAAAAAA.aaaaa")
+    private Boolean case3;
+
 }

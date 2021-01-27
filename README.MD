@@ -109,13 +109,13 @@ System.out.println(JSON.toJSONString(results, true));
 
 **演示**
 
-```
+```java
 // A 注解
 
 String a() default "A.a";
 ```
 
-```
+```java
 // B 注解
 
 // a 属性组合 A.a , 自己的 a 无效时, 就会去找 A.a, 如果有效, 则用 A.a ,
@@ -127,7 +127,7 @@ String a() default "B.a";
 String b();
 ```
 
-```
+```java
 // 被注解bean, AnnotatedElement
 public class AnnotatedBean {
 
@@ -145,22 +145,28 @@ public class AnnotatedBean {
 ```
 
 `CompositeAnnotationUtil.getCompositeAnnotation`
-```
+```java
+// 基本使用
+
 Field case1 = AnnotatedBean.class.getDeclaredField("case1");
 B composite = CompositeAnnotationUtil.getCompositeAnnotation(B.class, case1);
 Assert.assertEquals("case1", "AAAAAAAAAAAAA.aaaaa", composite.a());
 Assert.assertEquals("B.b", composite.b());
 ```
 
+```java
+// 查找的目标注解可以不存在
+// 需要组合的第三方注解属性基本满足需求时, 您就可以偷个懒, 不需要写自己的注解了
+
+Field case3 = AnnotatedBean.class.getDeclaredField("case3");
+// 获取没有的注解的 "组合" 实例
+C composite = CompositeAnnotationUtil.getNotNullCompositeAnnotation(C.class, case3);
+System.out.println(composite);
+```
+
 详情参考: `com.wtgroup.sugar.annotation.CompositeAnnotationUtilTest`.
 
 
-
-
-## 数字计算器工具类 `com.wtgroup.sugar.operation.Calculator`
-在不知道计算因子是否为null时, 多个数字为了处理 Null Exception 很是麻烦.
-使用本工具类, 则不用关系是否为null的问题.
-demo: `com.wtgroup.sugar.operation.CalculatorTest`
 
 ## `Lambda` 工具: 方法名-->字段名 (`com.wtgroup.sugar.reflect.LambdaUtil`)
 
@@ -181,6 +187,12 @@ LambdaUtils.Origin lamb = LambdaUtil.of(User::getHelloFieldNameUtils);
 System.out.println(lamb.getFieldName());                    // 原样 helloFieldNameUtils
 System.out.println(lamb.to(CaseFormat.UPPER_UNDERSCORE));   // => HELLO_FIELD_NAME_UTILS
 ```
+
+
+## 数字计算器工具类 `com.wtgroup.sugar.operation.Calculator`
+在不知道计算因子是否为null时, 多个数字为了处理 Null Exception 很是麻烦.
+使用本工具类, 则不用关系是否为null的问题.
+demo: `com.wtgroup.sugar.operation.CalculatorTest`
 
 
 ## `TypeDescor`

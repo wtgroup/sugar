@@ -1,7 +1,6 @@
 package com.wtgroup.sugar.annotation;
 
-import org.springframework.core.annotation.AnnotationConfigurationException;
-import org.springframework.core.annotation.AnnotationUtils;
+
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -17,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CompositeAnnotationInvocationHandler implements InvocationHandler {
 
-    private CompositeAnnotationAttributeExtractor attributeExtractor;
+    private final CompositeAnnotationAttributeExtractor attributeExtractor;
 
     private final Map<String, Object> valueCache = new ConcurrentHashMap<>(8);
 

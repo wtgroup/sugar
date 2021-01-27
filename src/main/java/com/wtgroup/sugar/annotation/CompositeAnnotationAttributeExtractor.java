@@ -1,6 +1,7 @@
 package com.wtgroup.sugar.annotation;
 
-import org.springframework.core.annotation.AnnotationUtils;
+
+
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -22,19 +23,22 @@ public class CompositeAnnotationAttributeExtractor {
         this.annotation = annotation;
         this.annotatedElement = annotatedElement;
         this.annotationType = annotation.annotationType();
-
-        // annotatedElement + annotation @Composite 属性方法,
-        // B.a 不可用 --> @Composite --> A.a
     }
 
 
+    /**获取属性方法值
+     *
+     * annotatedElement + annotation @Composite 属性方法,
+     * B.a 不可用 --> @Composite --> A.a
+     * @param attributeMethod
+     * @return
+     */
     protected Object getAttributeValue(Method attributeMethod) {
         // 自身的本属性方法值
-        Object attributeValue = getRawAttributeValue(attributeMethod);
-        // Object defaultValue = AnnotationUtils.getDefaultValue(this.annotationType, attributeMethod.getName());
+        Object attributeValue = getRawAttributeValue(attributeMethod, this.annotation);
         Object defaultValue = attributeMethod.getDefaultValue();
         if (attributeValue == null || attributeValue.equals(defaultValue)) {
-            // 进一步, 看组合的注解的属性
+            // 进一步, 看组合的注解的属性(@Composite指向的注解的属性)
             Composite composite = attributeMethod.getAnnotation(Composite.class);
             if (composite != null) {
                 Annotation compositeAnnotation = this.annotatedElement.getAnnotation(composite.annotation());
@@ -57,14 +61,14 @@ public class CompositeAnnotationAttributeExtractor {
     }
 
 
-    protected Object getRawAttributeValue(Method attributeMethod) {
-        return getRawAttributeValue(attributeMethod, getSource());
-    }
+    // protected Object getRawAttributeValue(Method attributeMethod) {
+    //     return getRawAttributeValue(attributeMethod, getSource());
+    // }
 
-    protected Object getRawAttributeValue(String attributeName) {
-        Method attributeMethod = ReflectionUtils.findMethod(getAnnotationType(), attributeName);
-        return (attributeMethod != null ? getRawAttributeValue(attributeMethod) : null);
-    }
+    // protected Object getRawAttributeValue(String attributeName) {
+    //     Method attributeMethod = ReflectionUtils.findMethod(getAnnotationType(), attributeName);
+    //     return (attributeMethod != null ? getRawAttributeValue(attributeMethod) : null);
+    // }
 
     protected Object getSource() {
         return this.annotation;
@@ -75,7 +79,7 @@ public class CompositeAnnotationAttributeExtractor {
     }
 
 
-    public static Object getRawAttributeValue(Method attributeMethod, Object source) {
+    protected static Object getRawAttributeValue(Method attributeMethod, Object source) {
         ReflectionUtils.makeAccessible(attributeMethod);
         return ReflectionUtils.invokeMethod(attributeMethod, source);
     }

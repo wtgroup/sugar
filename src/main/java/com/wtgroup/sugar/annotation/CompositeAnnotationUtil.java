@@ -1,6 +1,5 @@
 package com.wtgroup.sugar.annotation;
 
-import org.springframework.core.annotation.SynthesizedAnnotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -35,8 +34,8 @@ public class CompositeAnnotationUtil {
     /**查找组合注解, 内含"组合"语义.
      * @param annotationType 目标注解类型
      * @param annotatedElement 注解的元素, 属性, 方法等. {@link AnnotatedElement}
-     * @param <A>
-     * @return
+     * @param <A> 注解泛型
+     * @return 不存在时, 返回 null
      */
     public static <A extends Annotation> A getCompositeAnnotation(Class<A> annotationType, AnnotatedElement annotatedElement) {
         A annotation = annotatedElement.getAnnotation(annotationType);

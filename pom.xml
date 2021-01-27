@@ -6,7 +6,7 @@
 
     <groupId>com.wtgroup.sugar</groupId>
     <artifactId>sugar</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
 
     <parent>

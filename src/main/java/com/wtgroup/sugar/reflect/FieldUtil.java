@@ -58,11 +58,12 @@ public class FieldUtil {
     public static Map<String, Field> getFieldMap(Class<?> clz, boolean includeSuper, boolean includeStatic) {
 
         Field[] allFields = getFields(clz, includeSuper, includeStatic);
-        // 倒序遍历, 让自己的替换超类的
         Map<String, Field> map = new LinkedHashMap<>();
-        for (int i = allFields.length-1; i >-1 ; i--) {
-            Field f = allFields[i];
-            map.put(f.getName(), f);
+        // 自己的替换超类的 (父类的在尾部追加的)
+        for (Field f : allFields) {
+            if (!map.containsKey(f.getName())) {
+                map.put(f.getName(), f);
+            }
         }
 
         return map;

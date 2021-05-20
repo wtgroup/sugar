@@ -23,4 +23,7 @@ public class AnnotatedBean {
     @A(a = "AAAAAAAAAAAAA.aaaaa")
     private Boolean case3;
 
+
+    @C(b = "C.b", c = 333)
+    private Class<?> case4;
 }

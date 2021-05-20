@@ -92,4 +92,50 @@ public class CompositeAnnotationUtil {
         Class<?>[] exposedInterfaces = new Class<?>[]{annotationType, CompositedAnnotation.class};
         return (A) Proxy.newProxyInstance(annotationType.getClassLoader(), exposedInterfaces, handler);
     }
+
+
+    public static <A extends Annotation> A getUpcastCompositeAnnotation(Class<A> compositedAnnotationType, Class<? extends Annotation> compositerAnnotationType, AnnotatedElement annotatedElement) {
+        return compositeUpcast(compositedAnnotationType, compositerAnnotationType, annotatedElement, false);
+    }
+
+    public static <A extends Annotation> A getNotNullUpcastCompositeAnnotation(Class<A> compositedAnnotationType, Class<? extends Annotation> compositerAnnotationType, AnnotatedElement annotatedElement) {
+        return compositeUpcast(compositedAnnotationType, compositerAnnotationType, annotatedElement, true);
+    }
+
+    /**
+     * @param compositedAnnotationType "被组合者"注解类型
+     * @param compositerAnnotationType "组合者"注解类型
+     * @param annotatedElement 目标注解类型
+     * @param allowAbsent annotatedElement 上是否可以缺失 "被组合者" 注解. "组合者"注解缺失时, 直接返回检索到的"被组合者"注解(null就返回null).
+     * @param <A>
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static <A extends Annotation> A compositeUpcast(Class<A> compositedAnnotationType, Class<? extends Annotation> compositerAnnotationType, AnnotatedElement annotatedElement, boolean allowAbsent) {
+        A annotation = annotatedElement.getAnnotation(compositedAnnotationType);
+        // 目标注解必须存在时, 为 null 时, 返回
+        if (!allowAbsent && annotation == null) {
+            return null;
+        }
+
+        Annotation compositerAnnotation = annotatedElement.getAnnotation(compositerAnnotationType);
+        // 组合者需要存在, 否则, 此套逻辑没有意义. 直接返回 "被组合者" 自身就可以了
+        if (compositerAnnotation == null) {
+            return annotation;
+        }
+
+        if (annotation instanceof CompositedAnnotation) {
+            return annotation;
+        }
+        CompositeAnnotationAttributeExtractor attributeExtractor;
+        if (annotation == null) {
+            attributeExtractor = new UpcastCompositeAnnotationAttributeExtractor(compositerAnnotation, compositedAnnotationType, annotatedElement);
+        } else {
+            attributeExtractor = new UpcastCompositeAnnotationAttributeExtractor(compositerAnnotation, annotation, annotatedElement);
+        }
+        CompositeAnnotationInvocationHandler handler = new CompositeAnnotationInvocationHandler(attributeExtractor);
+
+        Class<?>[] exposedInterfaces = new Class<?>[]{compositedAnnotationType, CompositedAnnotation.class};
+        return (A) Proxy.newProxyInstance(compositedAnnotationType.getClassLoader(), exposedInterfaces, handler);
+    }
 }

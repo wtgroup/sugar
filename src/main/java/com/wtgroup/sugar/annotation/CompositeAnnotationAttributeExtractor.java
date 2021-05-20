@@ -18,10 +18,10 @@ import java.lang.reflect.Method;
 public class CompositeAnnotationAttributeExtractor {
 
     @Getter
-    private Annotation annotation;
+    protected Annotation annotation;
     @Getter
-    private final AnnotatedElement annotatedElement;
-    private final Class<? extends Annotation> annotationType;
+    protected final AnnotatedElement annotatedElement;
+    protected final Class<? extends Annotation> annotationType;
 
     public CompositeAnnotationAttributeExtractor(Annotation annotation, AnnotatedElement annotatedElement) {
         this.annotation = annotation;

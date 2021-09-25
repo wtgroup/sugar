@@ -20,7 +20,7 @@
 <dependency>
     <groupId>com.github.wtgroup</groupId>
     <artifactId>sugar</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.4</version>
 </dependency>
 ```
 

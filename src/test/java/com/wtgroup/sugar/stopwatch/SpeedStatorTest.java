@@ -14,7 +14,7 @@ public class SpeedStatorTest {
             System.out.println(momentInfo);
         }));
 
-        speedStator.start();
+        // speedStator.start();
 
         for (int i = 0; i < 100; i++) {
             new Thread(() -> {

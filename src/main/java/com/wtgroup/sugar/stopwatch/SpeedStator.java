@@ -83,7 +83,7 @@ public class SpeedStator {
         this.tag = tag == null ? "[" + this.getClass().getSimpleName() + "]" : tag;
         this.logFunc = logFunc;
 
-        this.start();
+        this.start(); // 如果不是以构造时间点为 start, 可以在后续再次调用一下 start()
     }
 
     public SpeedStator setDefaultTimeInterval(long defaultTimeInterval) {
@@ -99,6 +99,7 @@ public class SpeedStator {
     /**
      * 开始
      * <p>时间, 数量数据重置.
+     * 如果不是以构造时间点为 start, 需要再次调用一下 start(), 否则, 不用.
      */
     public synchronized void start() {
         this.start = this.preTick = System.currentTimeMillis();

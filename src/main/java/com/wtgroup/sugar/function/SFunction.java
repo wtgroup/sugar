@@ -1,4 +1,4 @@
-package com.wtgroup.sugar.reflect;
+package com.wtgroup.sugar.function;
 
 import java.io.Serializable;
 import java.util.function.Function;
@@ -9,5 +9,5 @@ import java.util.function.Function;
  * @author miemie
  * @since 2018-05-12
  */
-public interface Fn<T, R> extends Function<T, R>, Serializable {
+public interface SFunction<T, R> extends Function<T, R>, Serializable {
 }

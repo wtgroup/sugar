@@ -176,7 +176,7 @@ System.out.println(composite);
 有了这个工具, 便可以利用编辑器帮你检查. 如果只是简单修改字段名, 仅仅利用编辑器的重构, 代码就同步修改好了. 
 
 ```java
-// com.wtgroup.sugar.reflect.LambdaUtilsTest
+// com.wtgroup.sugar.reflect.FieldNameUtilsTest
 String s = LambdaUtil.fieldName(User::getUname);
 System.out.println(s);                                      // => uname
 String s1 = LambdaUtil.fieldName(User::getAge);

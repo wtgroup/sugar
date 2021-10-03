@@ -60,7 +60,7 @@ public class SpeedStator {
      * 区分日志的标记, 便于查看. 默认 "[this.getClass().getSimpleName()]"
      */
     // @Setter
-    private String tag;
+    private final String tag;
     /**
      * 默认日志间隔(ms), 10s, 方法上间隔优先
      */
@@ -177,6 +177,7 @@ public class SpeedStator {
      * 快捷方式, 都用默认阈值
      *
      */
+    @SafeVarargs
     public final synchronized void log(Function<MomentInfo, String> ... extraMsg) {
         this.logOr(this.defaultTimeInterval, this.defaultCountDelta, extraMsg);
     }

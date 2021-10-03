@@ -235,7 +235,7 @@ public class SpeedStator {
         if (this.logFunc == null) {
             double r = delta / (realInterval / 1000.0);
             double tr = this.handledCount / (this.totalTime / 1000.0);
-            log.info("{} 最近 {} 条, 耗时 {}, [TPS] {}/秒. 已处理 {} 条, 耗时 {}, TPS {}/秒{}",
+            log.info("[{}] 最近 {} 条, 耗时 {}, [TPS] {}/秒. 已处理 {} 条, 耗时 {}, TPS {}/秒{}",
                     tag, delta, Duration.ofMillis(realInterval), String.format("%.3f", momentInfo.latestTps()), this.handledCount, Duration.ofMillis(this.totalTime), String.format("%.3f", momentInfo.totalTps()),
                     extraMsgTxt == null ? "" : "\n" + extraMsgTxt);
         }

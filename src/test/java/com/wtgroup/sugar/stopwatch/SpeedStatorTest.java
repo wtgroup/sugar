@@ -10,15 +10,16 @@ public class SpeedStatorTest {
     @SneakyThrows
     @Test
     public void demo() {
-        SpeedStator speedStator = new SpeedStator("ss-demo", (momentInfo, ex) -> {
-            System.out.println(momentInfo + "\n" + ex);
-        });
+        // SpeedStator speedStator = new SpeedStator("ss-demo", (momentInfo, ex) -> {
+        //     System.out.println(momentInfo + "\n" + ex);
+        // });
+        SpeedStator speedStator = new SpeedStator("ss-demo");
 
         // speedStator.start();
 
         for (int i = 0; i < 100; i++) {
             new Thread(() -> {
-                for (int j = 0; j < 10000; j++) {
+                for (int j = 0; j < 100; j++) {
                     speedStator.log();
                     try {
                         TimeUnit.MILLISECONDS.sleep(200);

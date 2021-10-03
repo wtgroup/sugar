@@ -81,7 +81,7 @@ public class SpeedStator {
     }
 
     public SpeedStator(String tag, BiConsumer<MomentInfo, String> logFunc) {
-        this.tag = tag == null ? "[" + this.getClass().getSimpleName() + "]" : tag;
+        this.tag = tag == null ? this.getClass().getSimpleName() : tag;
         this.logFunc = logFunc;
 
         this.start(); // 如果不是以构造时间点为 start, 可以在后续再次调用一下 start()
@@ -235,8 +235,8 @@ public class SpeedStator {
         if (this.logFunc == null) {
             double r = delta / (realInterval / 1000.0);
             double tr = this.handledCount / (this.totalTime / 1000.0);
-            log.info("{} 最近 {} 处理 {} 条, [TPS] {}/秒. 已处理 {} 条消息, 耗时 {}, TPS {}/秒{}",
-                    tag, Duration.ofMillis(realInterval), delta, String.format("%.3f", r), this.handledCount, Duration.ofMillis(this.totalTime), String.format("%.3f", tr),
+            log.info("{} 最近 {} 条, 耗时 {}, [TPS] {}/秒. 已处理 {} 条, 耗时 {}, TPS {}/秒{}",
+                    tag, delta, Duration.ofMillis(realInterval), String.format("%.3f", momentInfo.latestTps()), this.handledCount, Duration.ofMillis(this.totalTime), String.format("%.3f", momentInfo.totalTps()),
                     extraMsgTxt == null ? "" : "\n" + extraMsgTxt);
         }
         else {

@@ -10,9 +10,9 @@ public class SpeedStatorTest {
     @SneakyThrows
     @Test
     public void demo() {
-        SpeedStator speedStator = new SpeedStator("ss-demo", (momentInfo -> {
-            System.out.println(momentInfo);
-        }));
+        SpeedStator speedStator = new SpeedStator("ss-demo", (momentInfo, ex) -> {
+            System.out.println(momentInfo + "\n" + ex);
+        });
 
         // speedStator.start();
 

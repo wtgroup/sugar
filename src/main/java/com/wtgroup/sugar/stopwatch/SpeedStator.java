@@ -8,7 +8,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.time.Duration;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static cn.hutool.core.date.BetweenFormater.Level.MILLISECOND;
@@ -69,7 +70,7 @@ public class SpeedStator {
      */
     private int defaultCountDelta = 100;
 
-    private final Consumer<MomentInfo> logFunc;
+    private final BiConsumer<MomentInfo, String> logFunc;
 
     public SpeedStator() {
         this(null);
@@ -79,7 +80,7 @@ public class SpeedStator {
         this(tag, null);
     }
 
-    public SpeedStator(String tag, Consumer<MomentInfo> logFunc) {
+    public SpeedStator(String tag, BiConsumer<MomentInfo, String> logFunc) {
         this.tag = tag == null ? "[" + this.getClass().getSimpleName() + "]" : tag;
         this.logFunc = logFunc;
 
@@ -107,50 +108,46 @@ public class SpeedStator {
     }
 
     @SafeVarargs
-    public final synchronized void logTimeInterval(Consumer<MomentInfo>... otherLogs) {
-        this.logTimeInterval(this.defaultTimeInterval, otherLogs);
+    public final synchronized void logTimeInterval(Function<MomentInfo, String> ... extraMsg) {
+        this.logTimeInterval(this.defaultTimeInterval, extraMsg);
     }
 
     /**
      * 按时间间隔输出日志
      *
-     * @param timeInterval
-     * @param otherLogs
      */
     @SafeVarargs
-    public final synchronized void logTimeInterval(long timeInterval, Consumer<MomentInfo>... otherLogs) {
+    public final synchronized void logTimeInterval(long timeInterval, Function<MomentInfo, String> ... extraMsg) {
         this.handledCount++;
         long now = System.currentTimeMillis();
         long realInterval = now - this.preTick;
         this.totalTime = now - this.start;
         long realDelta = this.handledCount - this.preHandledCount;
         if (realInterval >= timeInterval) {
-            doLog(realDelta, realInterval, otherLogs);
+            doLog(realDelta, realInterval, extraMsg);
             this.preTick = now;
             this.preHandledCount = this.handledCount;
         }
     }
 
     @SafeVarargs
-    public final synchronized void logCountDelta(Consumer<MomentInfo>... otherLogs) {
-        this.logCountDelta(this.defaultCountDelta, otherLogs);
+    public final synchronized void logCountDelta(Function<MomentInfo, String> ... extraMsg) {
+        this.logCountDelta(this.defaultCountDelta, extraMsg);
     }
 
     /**
      * 按事务次数间隔输出日志
      *
-     * @param countDelta
-     * @param otherLogs
      */
     @SafeVarargs
-    public final synchronized void logCountDelta(int countDelta, Consumer<MomentInfo>... otherLogs) {
+    public final synchronized void logCountDelta(int countDelta, Function<MomentInfo, String> ... extraMsg) {
         this.handledCount++;
         long now = System.currentTimeMillis();
         long realInterval = now - this.preTick;
         this.totalTime = now - this.start;
         long realDelta = this.handledCount - this.preHandledCount;
         if (realDelta >= countDelta) {
-            doLog(realDelta, realInterval, otherLogs);
+            doLog(realDelta, realInterval, extraMsg);
             this.preTick = now;
             this.preHandledCount = this.handledCount;
         }
@@ -161,17 +158,16 @@ public class SpeedStator {
      *
      * @param timeInterval
      * @param countDelta
-     * @param otherLogs
      */
     @SafeVarargs
-    public final synchronized void logOr(long timeInterval, int countDelta, Consumer<MomentInfo>... otherLogs) {
+    public final synchronized void logOr(long timeInterval, int countDelta, Function<MomentInfo, String> ... extraMsg) {
         this.handledCount++;
         long now = System.currentTimeMillis();
         long realInterval = now - this.preTick;
         this.totalTime = now - this.start;
         long realDelta = this.handledCount - this.preHandledCount;
         if (realDelta >= countDelta || realInterval >= timeInterval) {
-            doLog(realDelta, realInterval, otherLogs);
+            doLog(realDelta, realInterval, extraMsg);
             this.preTick = now;
             this.preHandledCount = this.handledCount;
         }
@@ -180,15 +176,13 @@ public class SpeedStator {
     /**
      * 快捷方式, 都用默认阈值
      *
-     * @param otherLogs
      */
-    @SafeVarargs
-    public final synchronized void log(Consumer<MomentInfo>... otherLogs) {
-        this.logOr(this.defaultTimeInterval, this.defaultCountDelta, otherLogs);
+    public final synchronized void log(Function<MomentInfo, String> ... extraMsg) {
+        this.logOr(this.defaultTimeInterval, this.defaultCountDelta, extraMsg);
     }
 
     @SafeVarargs
-    public final synchronized void logIf(Predicate<MomentInfo> test, Consumer<MomentInfo>... otherLogs) {
+    public final synchronized void logIf(Predicate<MomentInfo> test, Function<MomentInfo, String> ... extraMsg) {
         this.handledCount++;
         long now = System.currentTimeMillis();
         long realInterval = now - this.preTick;
@@ -198,7 +192,7 @@ public class SpeedStator {
         momentInfo.countDelta = realDelta;
         momentInfo.timeInterval = realInterval;
         if (test.test(momentInfo)) {
-            doLog(realDelta, realInterval, otherLogs);
+            doLog(realDelta, realInterval, extraMsg);
             this.preTick = now;
             this.preHandledCount = this.handledCount;
         }
@@ -211,32 +205,41 @@ public class SpeedStator {
      *
      * @param delta
      * @param realInterval
-     * @param otherLogs
+     * @param extraMsg
      */
-    @SafeVarargs
-    protected final void doLog(long delta, long realInterval, Consumer<MomentInfo>... otherLogs) {
+    protected final void doLog(long delta, long realInterval, Function<MomentInfo, String> ... extraMsg) {
+        // 最近间隔内 时长, 数量. 总时长, 总数量.
+        MomentInfo momentInfo = new MomentInfo();
+        momentInfo.countDelta = delta;
+        momentInfo.timeInterval = realInterval;
+        momentInfo.handledCount = this.handledCount;
+        momentInfo.totalTime = this.totalTime;
+
+        String extraMsgTxt = null;
+
+        if (extraMsg != null && extraMsg.length > 0) {
+            StringBuilder sb = new StringBuilder();
+            for (Function<MomentInfo, String> it : extraMsg) {
+                if (it !=null) {
+                    if (sb.length() > 0) {
+                        sb.append("\n");
+                    }
+                    sb.append(it.apply(momentInfo));
+                }
+            }
+            extraMsgTxt = sb.toString();
+        }
+
+
         if (this.logFunc == null) {
             double r = delta / (realInterval / 1000.0);
             double tr = this.handledCount / (this.totalTime / 1000.0);
-            log.info("{} 最近 {} 处理 {} 条, [TPS] {}/秒. 已处理 {} 条消息, 耗时 {}, TPS {}/秒",
-                    tag, Duration.ofMillis(realInterval), delta, String.format("%.3f", r), this.handledCount, Duration.ofMillis(this.totalTime), String.format("%.3f", tr));
+            log.info("{} 最近 {} 处理 {} 条, [TPS] {}/秒. 已处理 {} 条消息, 耗时 {}, TPS {}/秒{}",
+                    tag, Duration.ofMillis(realInterval), delta, String.format("%.3f", r), this.handledCount, Duration.ofMillis(this.totalTime), String.format("%.3f", tr),
+                    extraMsgTxt == null ? "" : "\n" + extraMsgTxt);
         }
         else {
-            // 最近间隔内 时长, 数量. 总时长, 总数量.
-            MomentInfo momentInfo = new MomentInfo();
-            momentInfo.countDelta = delta;
-            momentInfo.timeInterval = realInterval;
-            momentInfo.handledCount = this.handledCount;
-            momentInfo.totalTime = this.totalTime;
-
-            this.logFunc.accept(momentInfo);
-
-            // 其他日志输出
-            if (otherLogs.length > 0) {
-                for (Consumer<MomentInfo> otherLog : otherLogs) {
-                    otherLog.accept(momentInfo);
-                }
-            }
+            this.logFunc.accept(momentInfo, extraMsgTxt);
         }
     }
 

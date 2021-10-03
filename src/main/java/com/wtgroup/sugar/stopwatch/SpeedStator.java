@@ -203,6 +203,10 @@ public class SpeedStator {
         this.doLogSync((momentInfo -> momentInfo.countDelta >= countDelta), extraMsg_Args);
     }
 
+    public void logOr(Object ... extraMsg_Args) {
+        this.logOr(this.defaultTimeInterval, this.defaultCountDelta, extraMsg_Args);
+    }
+
     /**
      * 时间间隔和次数间隔满足其一, 就输出日志
      *
@@ -213,6 +217,10 @@ public class SpeedStator {
         this.handledCount.getAndIncrement();
 
         this.doLogSync((momentInfo -> momentInfo.timeInterval >= timeInterval || momentInfo.countDelta >= countDelta), extraMsg_Args);
+    }
+
+    public  void logAnd(Object ... extraMsg_Args) {
+        this.logAnd(this.defaultTimeInterval, this.defaultCountDelta, extraMsg_Args);
     }
 
     /**
@@ -232,7 +240,7 @@ public class SpeedStator {
      * {@code this.doLogSync((momentInfo -> momentInfo.timeInterval >= timeInterval))} 的快捷方式.
      */
     public void log(Object ... extraMsg_Args) {
-        this.logOr(this.defaultTimeInterval, this.defaultCountDelta, extraMsg_Args);
+        this.logOr(extraMsg_Args);
     }
 
     public void logIf(Predicate<MomentInfo> test, Object ... extraMsg_Args) {

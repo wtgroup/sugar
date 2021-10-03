@@ -1,8 +1,10 @@
 package com.wtgroup.sugar.stopwatch;
 
 import lombok.SneakyThrows;
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class SpeedStatorTest {
@@ -17,21 +19,52 @@ public class SpeedStatorTest {
 
         // speedStator.start();
 
-        for (int i = 0; i < 100; i++) {
+
+        int N = 100, M = 1000;
+        CountDownLatch countDownLatch = new CountDownLatch(N * M);
+
+        for (int i = 0; i < N; i++) {
             new Thread(() -> {
-                for (int j = 0; j < 100; j++) {
+                for (int j = 0; j < M; j++) {
                     speedStator.log();
                     try {
                         TimeUnit.MILLISECONDS.sleep(200);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    countDownLatch.countDown();
                 }
             }).start();
         }
 
+        countDownLatch.await();
+        speedStator.stop();
+        Assert.assertEquals(N * M, speedStator.getHandledCount());
 
-        Thread.currentThread().join();
+        /**
+         * 100 * 1000
+         * [ss-demo] STOP: 共处理 100000 条, 耗时 PT0.198S, TPS 50_5050.505/秒
+         * 200 * 10000
+         * [ss-demo] STOP: 共处理 2000000 条, 耗时 PT1.155S, TPS 173_1601.732/秒
+         * 1000 * 10000
+         * [ss-demo] STOP: 共处理 10000000 条, 耗时 PT4.998S, TPS 200_0800.320/秒
+         * 10000 * 10000
+         * [ss-demo] STOP: 共处理 100000000 条, 耗时 PT25.523S, TPS 391_8034.714/秒
+         *
+         * // 去 synchronized 后
+         * 100 * 1000
+         * [ss-demo] STOP: 共处理 100000 条, 耗时 PT0.093S, TPS 107_5268.817/秒
+         * 100 * 10000
+         * [ss-demo] STOP: 共处理 1000000 条, 耗时 PT0.257S, TPS 389_1050.584/秒
+         * 200 * 10000
+         * [ss-demo] STOP: 共处理 2000000 条, 耗时 PT0.425S, TPS 470_5882.353/秒
+         * 1000 * 10000
+         * [ss-demo] STOP: 共处理 10000000 条, 耗时 PT2.068S, TPS 483_5589.942/秒
+         * 10000 * 10000
+         * [ss-demo] STOP: 共处理 10000_0000 条, 耗时 PT17.803S, TPS 561_7030.837/秒
+         *
+         * 总结: tryLock 方式, 提升 2.5 倍
+         */
     }
 
 

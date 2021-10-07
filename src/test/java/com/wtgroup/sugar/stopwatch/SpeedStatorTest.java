@@ -20,13 +20,14 @@ public class SpeedStatorTest {
         // speedStator.start();
 
 
-        int N = 100, M = 1000;
+        int N = 10, M = 10;
         CountDownLatch countDownLatch = new CountDownLatch(N * M);
 
         for (int i = 0; i < N; i++) {
             new Thread(() -> {
                 for (int j = 0; j < M; j++) {
-                    speedStator.log();
+                    speedStator.log("{}-----{}", 7979797, "红红火火恍恍惚惚或或或或或或或或或或或或或或或或或");
+                    System.out.println(speedStator.getLatestMoment());
                     try {
                         TimeUnit.MILLISECONDS.sleep(200);
                     } catch (InterruptedException e) {

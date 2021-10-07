@@ -21,7 +21,7 @@ public class FieldNameUtil {
     }
 
     public static <T> String get(SFunction<T, ?> accessor, CaseFormat toFormat) {
-        return get(accessor, toFormat, CaseFormat.LOWER_CAMEL);
+        return get(accessor, CaseFormat.LOWER_CAMEL, toFormat);
     }
 
     public static <T> String get(SFunction<T, ?> accessor, CaseFormat srcFormat, CaseFormat toFormat) {

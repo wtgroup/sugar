@@ -16,19 +16,19 @@ public class CalculatorTest {
         System.out.println(c.of(null).sub(a).get());
     }
 
-    @Test
-    public void foo2() {
-        Calculator c = Calculator.noNullAsZero();
-        // 或
-        // Calculator c = Calculator.create(Calculator.Rule.NOT_NULL_AS_ZERO);
-
-        Number res1 = c.of(null).sub(9).orElse(9999); // 预期 9999
-        System.out.println(res1);
-
-        Number res2 = c.of(null).sub(9).get(); // 根据规则, 结果 null, 使用 get() 会抛异常
-        System.out.println(res2);
-
-    }
+    // @Test
+    // public void foo2() {
+    //     Calculator c = Calculator.noNullAsZero();
+    //     // 或
+    //     // Calculator c = Calculator.create(Calculator.Rule.NOT_NULL_AS_ZERO);
+    //
+    //     Number res1 = c.of(null).sub(9).orElse(9999); // 预期 9999
+    //     System.out.println(res1);
+    //
+    //     Number res2 = c.of(null).sub(9).get(); // 根据规则, 结果 null, 使用 get() 会抛异常
+    //     System.out.println(res2);
+    //
+    // }
 
     @Test
     public void foo3() {

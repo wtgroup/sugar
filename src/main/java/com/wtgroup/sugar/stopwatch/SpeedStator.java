@@ -3,7 +3,6 @@ package com.wtgroup.sugar.stopwatch;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.Getter;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -18,7 +17,7 @@ import java.util.function.Predicate;
 import static cn.hutool.core.date.BetweenFormater.Level.MILLISECOND;
 
 /**
- * 速度统计器
+ * 速度统计和带限流的日志
  * <p>
  * 1> 指定间隔, 到了这个间隔, 输出一次日志.
  * 2> 指定事务次数间隔, 达到次数, 输出一次日志.
@@ -37,36 +36,37 @@ import static cn.hutool.core.date.BetweenFormater.Level.MILLISECOND;
  * @date 2020/11/15 22:46
  */
 @Slf4j
-@Getter
-@Accessors(chain = true)
 public class SpeedStator {
 
     /**
      * 开始时间戳
      */
+    @Getter
     private long start;
     /**
      * 上次日志时的时间戳, 用于计算日志间隔
      */
+    @Getter
     private long preTick;
     /**
      * 处理消耗的总时长
      */
-    @Getter
     private long totalTime;
     /**
      * 上次日志时的已处理数
      */
+    @Getter
     private long preHandledCount;
     /**
      * 当前总处理数
+     * 如果您需要统计总事务数, 可以所有事务结束后, 取这个值, 它是准确的, 而不用另外搞一个计数器.
      */
-    private volatile AtomicLong handledCount = new AtomicLong();
+    private final AtomicLong handledCount = new AtomicLong();
 
     /**
      * 区分日志的标记, 便于查看. 默认 "[this.getClass().getSimpleName()]"
      */
-    // @Setter
+    @Getter
     private final String tag;
     /**
      * 默认日志间隔(ms), 10s, 方法上间隔优先
@@ -81,7 +81,7 @@ public class SpeedStator {
      * P2: 额外消息格式解析后的文本
      */
     private final BiConsumer<MomentInfo, String> logFunc;
-
+    @Getter
     private volatile boolean running = false;
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -117,9 +117,7 @@ public class SpeedStator {
      * 如果不是以构造时间点为 start, 需要再次调用一下 start(), 否则, 不用.
      */
     public void start() {
-        if (running) {
-            return;
-        }
+        if (running) return;
         if (lock.tryLock()) {
             this.start = this.preTick = System.currentTimeMillis();
             this.preHandledCount = 0;
@@ -129,7 +127,12 @@ public class SpeedStator {
         }
     }
 
+    /**
+     * 标记结束, 打印全局平均速率.
+     * 请确保在所有事务的确结束了才调用, 避免误差.
+     */
     public void stop() {
+        if(!running) return;
         if (!lock.tryLock()) return;
 
         log.info("[{}] STOP: 共处理 {} 条, 耗时 {}, TPS {}/秒",
@@ -162,32 +165,6 @@ public class SpeedStator {
 
         this.doLogSync((momentInfo -> momentInfo.timeInterval >= timeInterval), extraMsg_Args);
     }
-
-    private void doLogSync(Predicate<MomentInfo> test, Object ... extraMsg_Args) {
-        if (!lock.tryLock()) return;
-
-        try {
-            long now = System.currentTimeMillis();
-            this.totalTime = now - this.start;
-
-            // 最近间隔内 时长, 数量. 总时长, 总数量.
-            MomentInfo momentInfo = new MomentInfo();
-            momentInfo.countDelta = this.handledCount.get() - this.preHandledCount;
-            momentInfo.timeInterval = now - this.preTick;
-            momentInfo.handledCount = this.handledCount.get();
-            momentInfo.totalTime = this.totalTime;
-
-            if (test.test(momentInfo)) {
-                doLog(momentInfo, extraMsg_Args);
-                this.preTick = now;
-                this.preHandledCount = this.handledCount.get();
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
-
-
 
     public void logCountDelta(Object ... extraMsg_Args) {
         this.logCountDelta(this.defaultCountDelta, extraMsg_Args);
@@ -249,6 +226,29 @@ public class SpeedStator {
         this.doLogSync(test, extraMsg_Args);
     }
 
+    private void doLogSync(Predicate<MomentInfo> test, Object ... extraMsg_Args) {
+        if (!lock.tryLock()) return;
+
+        try {
+            long now = System.currentTimeMillis();
+            this.totalTime = now - this.start;
+
+            // 最近间隔内 时长, 数量. 总时长, 总数量.
+            MomentInfo momentInfo = new MomentInfo();
+            momentInfo.countDelta = this.handledCount.get() - this.preHandledCount;
+            momentInfo.timeInterval = now - this.preTick;
+            momentInfo.handledCount = this.handledCount.get();
+            momentInfo.totalTime = this.totalTime;
+
+            if (test.test(momentInfo)) {
+                doLog(momentInfo, extraMsg_Args);
+                this.preTick = now;
+                this.preHandledCount = this.handledCount.get();
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
 
     /**
      * 执行日志输出
@@ -277,6 +277,44 @@ public class SpeedStator {
             this.logFunc.accept(momentInfo, extraMsgTxt);
         }
     }
+
+    public long getTotalTime() {
+        return System.currentTimeMillis() - this.start;
+    }
+
+
+    // ---- 查询实时速率 ---- //
+
+    /**
+     * 实时全局平均速率
+     */
+    public double getSpeed() {
+        return (double) this.getHandledCount() / this.getTotalTime();
+    }
+
+    /**
+     * 实时最近速率, 上次日志点开始到现在的速率
+     */
+    public double getLatestSpeed() {
+        long dur = System.currentTimeMillis() - this.preTick;
+        long c = this.getHandledCount() - this.preHandledCount;
+        return (double) c / dur;
+    }
+
+    /**
+     * 实时 MomentInfo , 上次日志时点开始到现在
+     */
+    public MomentInfo getLatestMoment() {
+        long dur = System.currentTimeMillis() - this.preTick;
+        long c = this.getHandledCount() - this.preHandledCount;
+        MomentInfo momentInfo = new MomentInfo();
+        momentInfo.countDelta = c;
+        momentInfo.timeInterval = dur;
+        momentInfo.handledCount = this.getHandledCount();
+        momentInfo.totalTime = this.getTotalTime();
+        return momentInfo;
+    }
+
 
     public static class MomentInfo {
         public long countDelta;

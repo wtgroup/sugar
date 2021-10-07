@@ -2,8 +2,6 @@ package com.wtgroup.sugar;
 
 import org.junit.Test;
 
-import java.time.Duration;
-
 /**
  * @author dafei
  * @version 0.1
@@ -13,7 +11,8 @@ public class FooTest {
 
     @Test
     public void foo2() {
-        System.out.println(Duration.ofMillis(363747));
+        long i = 1, j = 3;
+        System.out.println((double) i/j);
     }
 
 

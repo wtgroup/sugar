@@ -16,7 +16,7 @@ class ThrowUtilTest extends Specification {
     def "_ where exceptionType=#exceptionType and msg=#msg and args=#args then expect: #expectedResult"() {
         expect:
         try {
-            ThrowUtil._(exceptionType, msg, args)
+            ThrowUtil.$(exceptionType, msg, args)
         } catch (Exception exception) {
             exception.message == expectedResult
         }

@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import static cn.hutool.core.date.BetweenFormater.Level.MILLISECOND;
+import static cn.hutool.core.date.BetweenFormatter.Level.MILLISECOND;
 
 /**
  * 速度统计和带限流的日志
@@ -61,7 +61,7 @@ public class SpeedStator {
      * 当前总处理数
      * 如果您需要统计总事务数, 可以所有事务结束后, 取这个值, 它是准确的, 而不用另外搞一个计数器.
      */
-    private final AtomicLong handledCount = new AtomicLong();
+    private volatile AtomicLong handledCount = new AtomicLong();
 
     /**
      * 区分日志的标记, 便于查看. 默认 "[this.getClass().getSimpleName()]"
@@ -134,9 +134,9 @@ public class SpeedStator {
     public void stop() {
         if(!running) return;
         if (!lock.tryLock()) return;
-
+        long totalTime = this.getTotalTime();
         log.info("[{}] STOP: 共处理 {} 条, 耗时 {}, TPS {}/秒",
-                tag, this.handledCount.get(), Duration.ofMillis(this.totalTime), String.format("%.3f", this.handledCount.get() / (this.totalTime / 1000.0)));
+                tag, this.handledCount.get(), Duration.ofMillis(totalTime), String.format("%.3f", this.handledCount.get() / (totalTime / 1000.0)));
         this.running = false;
         lock.unlock();
     }
@@ -279,7 +279,7 @@ public class SpeedStator {
     }
 
     public long getTotalTime() {
-        return System.currentTimeMillis() - this.start;
+        return this.totalTime = System.currentTimeMillis() - this.start;
     }
 
 

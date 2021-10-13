@@ -5,7 +5,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class SpeedStatorTest {
 
@@ -20,7 +19,7 @@ public class SpeedStatorTest {
         // speedStator.start();
 
 
-        int N = 10, M = 10;
+        int N = 50, M = 100;
         CountDownLatch countDownLatch = new CountDownLatch(N * M);
 
         for (int i = 0; i < N; i++) {
@@ -28,11 +27,11 @@ public class SpeedStatorTest {
                 for (int j = 0; j < M; j++) {
                     speedStator.log("{}-----{}", 7979797, "红红火火恍恍惚惚或或或或或或或或或或或或或或或或或");
                     System.out.println(speedStator.getLatestMoment());
-                    try {
-                        TimeUnit.MILLISECONDS.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    // try {
+                    //     TimeUnit.MILLISECONDS.sleep(200);
+                    // } catch (InterruptedException e) {
+                    //     e.printStackTrace();
+                    // }
                     countDownLatch.countDown();
                 }
             }).start();

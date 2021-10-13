@@ -16,7 +16,7 @@ import java.util.Arrays;
 public class ThrowUtil {
     private static final RuntimeException STUB_EXCEPTION = new RuntimeException("ThrowUtil#_ default Exception instance");
 
-    public static <T extends RuntimeException> T _(Class<T> exceptionType, @Nullable String msg, Object ...args) {
+    public static <T extends RuntimeException> T $(Class<T> exceptionType, @Nullable String msg, Object ...args) {
         if (exceptionType == null) {
             throw STUB_EXCEPTION;
         }

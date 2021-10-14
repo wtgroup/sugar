@@ -13,7 +13,7 @@ import java.util.HashMap;
  */
 public class SoMap extends HashMap<String, Object> {
 
-    public static SoMap create(Object... kvs) {
+    public static SoMap of(Object... kvs) {
         SoMap soMap = new SoMap();
         return soMap.puts(kvs);
     }

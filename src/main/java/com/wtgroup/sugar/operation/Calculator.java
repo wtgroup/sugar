@@ -13,6 +13,9 @@ import java.util.function.Supplier;
 /**
  * 计算器工具类
  *
+ * == 2021-10-20 ==
+ * 优化 API
+ *
  * == 2020-12-28 ==
  * - NOT_NULL_AS_ZERO 改名为 NO_NULL_AS_ZERO , not->no, 避免歧义, no 表示取反. not null 容易误解为 '非空'
  * - 新增 `com.wtgroup.sugar.operation.Calculator#strict()`
@@ -32,28 +35,27 @@ public class Calculator {
         this.rule = rule;
     }
 
-    public static Calculator create() {
-        return create(Rule.DEFAULT);
-    }
-
-    public static Calculator noNullAsZero() {
-        return create(Rule.NO_NULL_AS_ZERO);
-    }
+    /**
+     * 宽松模式: null as 0, NaN as 0, infinity as 0
+     */
+    public static Calculator LOOSE = of(Rule.LOOSE);
 
     /**
-     * # 严格规则
-     *
-     * ```
-     * Rule(false, false, false)
-     * ```
-     *
-     * @return
+     * null 还是 null
      */
-    public static Calculator strict() {
-        return create(Rule.STRICT_MODE);
-    }
+    public static Calculator NO_NULL_AS_ZERO = of(Rule.NO_NULL_AS_ZERO);
 
-    public static Calculator create(Rule rule) {
+    /**
+     * 严格规则
+     *
+     * <pre>
+     * Rule(false, false, false)
+     * </pre>
+     */
+    public static Calculator STRICT = of(Rule.STRICT);
+
+
+    public static Calculator of(Rule rule) {
         Calculator c = new Calculator(rule);
         return c;
     }
@@ -62,7 +64,7 @@ public class Calculator {
      * @param num
      * @return
      */
-    public Num of(Number num) {
+    public Num exe(Number num) {
         return new Num(num, this.rule);
     }
 
@@ -295,10 +297,16 @@ public class Calculator {
     @Data
     @Accessors(chain = true)
     public static class Rule {
-        public static final Rule DEFAULT = new Rule(true,true,true);
+        /**
+         * 宽松模式: null as 0, NaN as 0, infinity as 0
+         */
+        public static final Rule LOOSE = new Rule(true,true,true);
+        /**
+         * null 还是 null
+         */
         public static final Rule NO_NULL_AS_ZERO = new Rule(false,true,true);
         /**严格模式*/
-        public static final Rule STRICT_MODE = new Rule(false, false, false);
+        public static final Rule STRICT = new Rule(false, false, false);
         private boolean nullAsZero;
         private boolean nanAsZero;
         private boolean infinityAsZero;

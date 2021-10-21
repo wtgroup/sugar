@@ -1,6 +1,7 @@
 package com.wtgroup.sugar.math;
 
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
@@ -19,6 +20,7 @@ import lombok.experimental.Accessors;
  * @version 0.1
  * @date 2020/4/29 10:29
  */
+@ToString
 public class Numbors {
 
     /**
@@ -61,20 +63,6 @@ public class Numbors {
      */
     public Numbor get(Number num) {
         return new Numbor(num, this.rule);
-    }
-
-    /**
-     * @return an empty {@code Num}
-     */
-    public static Numbor empty() {
-        return Numbor.EMPTY;
-    }
-
-    @Override
-    public String toString() {
-        return "Calculator{" +
-                "rule=" + rule +
-                '}';
     }
 
     @Data

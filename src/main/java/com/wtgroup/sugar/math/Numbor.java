@@ -36,7 +36,7 @@ public class Numbor implements Serializable {
     private final Numbors.Rule rule;
 
 
-    public static Numbor ofNullable(Number number, Numbors.Rule rule) {
+    static Numbor ofNullable(Number number, Numbors.Rule rule) {
         return new Numbor(number, rule);
     }
 
@@ -243,6 +243,28 @@ public class Numbor implements Serializable {
 
     public boolean notNull() {
         return !isNull();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if(other == this) return true;
+        Numbor y;
+        if (other instanceof Numbor) {
+            y = (Numbor) other;
+        } else if (other instanceof Number) {
+            y = ofNullable((Number) other, this.rule);
+        } else {
+            return false;
+        }
+
+        if (this.isNull() && y.isNull()) {
+            return true;
+        }
+        if (this.isNull() || y.isNull()) {
+            return false;
+        }
+        // both not null
+        return this.get().equals(y.get());
     }
 
     @Override

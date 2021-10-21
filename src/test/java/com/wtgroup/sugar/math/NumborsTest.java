@@ -11,6 +11,7 @@ public class NumborsTest {
         Numbors of = Numbors.of(new Numbors.Rule(true, false, false));
         System.out.println(of.get(0).div(0));
         System.out.println(of.get(1).div(0));
+        System.out.println(Numbors.STRICT);
     }
 
     @Test

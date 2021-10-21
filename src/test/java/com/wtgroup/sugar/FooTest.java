@@ -11,8 +11,8 @@ public class FooTest {
 
     @Test
     public void foo2() {
-        long i = 1, j = 3;
-        System.out.println((double) i/j);
+        System.out.println(Integer.parseInt(""));
+        System.out.println(Integer.parseInt("null"));
     }
 
 

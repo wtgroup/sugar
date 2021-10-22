@@ -50,7 +50,7 @@ import java.util.function.Supplier;
  * 特殊值计算二维表
  * <p>
  * 参考 Double 值运算规则.
- * [0, +∞, -∞, NaN], 量量组合运算.
+ * [0, +∞, -∞, NaN], 两两组合运算.
  * <pre>
  * // +
  * 0.000     Infinity  -Infinity NaN
@@ -179,7 +179,7 @@ public class Numbor implements Serializable {
      */
     public void ifPresent(Consumer<? super Number> consumer) {
         if (notNull())
-            consumer.accept(value);
+            consumer.accept(this.get());
     }
 
     private Numbor tryCalculate(Numbor other, BiFunction<Number, Number, Number> calculator, BiFunction<Double, Double, Number> onException) {

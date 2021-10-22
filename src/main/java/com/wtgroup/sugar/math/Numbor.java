@@ -1,6 +1,7 @@
 package com.wtgroup.sugar.math;
 
 import cn.hutool.core.util.NumberUtil;
+import com.wtgroup.sugar.lang.AbstractFlag;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -102,6 +103,10 @@ public class Numbor implements Serializable {
      */
     private final Rule rule;
 
+    public static Rule rule(int ruleFlags) {
+        return new Rule(ruleFlags);
+    }
+
     /**
      * zero
      */
@@ -123,6 +128,10 @@ public class Numbor implements Serializable {
         this.rule = rule;
     }
 
+    public Numbor(Number num, int ruleFlags) {
+        this(num, new Rule(ruleFlags));
+    }
+
     /**
      * {@code isNull()} 不通过时时抛异常 {@link NoSuchElementException}
      *
@@ -133,15 +142,15 @@ public class Numbor implements Serializable {
             throw new NoSuchElementException("No value present");
         }
         // 经过 isNull 的校验, value==null, 说明刚好就是 value == null && rule.nullAsZero 的情况
-        if (value == null && rule.nullAsZero) {
+        if (value == null && rule.isNullAs0()) {
             return 0;
         }
         // 这里 value 一定 != null
         assert value != null;
-        if (Double.isInfinite(value.doubleValue()) && rule.infinityAsZero) {
+        if (Double.isInfinite(value.doubleValue()) && rule.isInfinityAs0()) {
             return 0;
         }
-        if (Double.isNaN(value.doubleValue()) && rule.nanAsZero) {
+        if (Double.isNaN(value.doubleValue()) && rule.isNanAs0()) {
             return 0;
         }
 
@@ -315,7 +324,7 @@ public class Numbor implements Serializable {
             return true;
         }
         if (value == null) {
-            if (rule.nullAsZero) {
+            if (rule.isNullAs0()) {
                 return false;
             } else {
                 return true;
@@ -405,35 +414,66 @@ public class Numbor implements Serializable {
      * 2. nanAsZero: 默认 false
      * 3. infinityAsZero: 默认 false
      */
-    @Data
     @Builder
     @Accessors(chain = true)
-    public static class Rule implements Serializable {
-        /**
-         * 宽松模式: null as 0, NaN as 0, infinity as 0
-         */
-        public static final Rule LOOSE = new Rule(true, true, true);
+    public static class Rule extends AbstractFlag implements Serializable {
         /**
          * 严格模式
+         * <p>
          * 默认
          */
-        public static final Rule STRICT = new Rule(false, false, false);
+        private static final Rule STRICT = new Rule();
+        /**
+         * 宽松模式
+         * <p>
+         * null as 0, NaN as 0, infinity as 0
+         */
+        private static final Rule LOOSE = new Rule(Rule.NULL_AS_0 | Rule.INFINITY_AS_0 | Rule.NAN_AS_0);
 
-        final boolean nullAsZero;
+        // -- 忽略特殊值, 优先级高于下面 AS 规则 --
+        public static final int IGNORE_NULL     = 1;
+        public static final int IGNORE_INFINITY = 1 << 1;
+        public static final int IGNORE_NAN      = 1 << 2;
+        // -- AS --
+        public static final int NULL_AS_0       = 1 << 3;
+        public static final int INFINITY_AS_0   = 1 << 4;
+        public static final int NAN_AS_0        = 1 << 5;
 
-        final boolean nanAsZero;
-        final boolean infinityAsZero;
-
-        private Rule() {
-            this.nullAsZero = false;
-            this.nanAsZero = false;
-            this.infinityAsZero = false;
+        /**
+         * 严格模式
+         * <p>
+         * 默认
+         */
+        public static Rule strict() {
+            return STRICT;
         }
 
-        public Rule(boolean nullAsZero, boolean nanAsZero, boolean infinityAsZero) {
-            this.nullAsZero = nullAsZero;
-            this.nanAsZero = nanAsZero;
-            this.infinityAsZero = infinityAsZero;
+        /**
+         * 宽松模式
+         * <p>
+         * null as 0, NaN as 0, infinity as 0
+         */
+        public static Rule loose() {
+            return LOOSE;
+        }
+
+        /**
+         * 默认规则, jdk 自身运算规则, 无自定义规则.
+         */
+        public Rule() {
+            this(0);
+        }
+        public Rule(int flags) {
+            super(flags);
+            if (has(IGNORE_NULL) && has(NULL_AS_0)) {
+                remove(NULL_AS_0);
+            }
+            if (has(IGNORE_INFINITY) && has(INFINITY_AS_0)) {
+                remove(INFINITY_AS_0);
+            }
+            if (has(IGNORE_NAN) && has(NAN_AS_0)) {
+                remove(NAN_AS_0);
+            }
         }
 
         /**
@@ -445,6 +485,29 @@ public class Numbor implements Serializable {
             return new Numbor(num, this);
         }
 
+        public boolean isIgnoreNull() {
+            return has(IGNORE_NULL);
+        }
+
+        public boolean isIgnoreInfinity() {
+            return has(IGNORE_INFINITY);
+        }
+
+        public boolean isIgnoreNan() {
+            return has(IGNORE_NAN);
+        }
+
+        public boolean isNullAs0() {
+            return has(NULL_AS_0);
+        }
+
+        public boolean isInfinityAs0() {
+            return has(INFINITY_AS_0);
+        }
+
+        public boolean isNanAs0() {
+            return has(NAN_AS_0);
+        }
     }
 
 

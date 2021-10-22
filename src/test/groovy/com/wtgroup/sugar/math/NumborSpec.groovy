@@ -16,17 +16,14 @@ class NumborSpec extends Specification {
 
     def "demo"() {
         expect:
-        println 3.0 - 2.0
-        println 3.0 - 2.0 == 1.0
-
         Numbor numbor = new Numbor(1);
         println "new Numbor(1) => " + numbor
-        Numbor numbor2 = Numbor.Rule.LOOSE.apply(1);
-        println "Numbor.Rule.LOOSE.apply(1) => " + numbor2
-        println "Numbor.Rule.LOOSE.apply(null) => " + Numbor.Rule.LOOSE.apply(null)
-        println "Numbor.Rule.STRICT.apply(null) => " + Numbor.Rule.STRICT.apply(null)
-        Numbor.Rule nullAsZero = Numbor.Rule.builder().nullAsZero(true).build();
-        System.out.println(nullAsZero.isInfinityAsZero());
+        Numbor numbor2 = Numbor.Rule.loose().apply(1);
+        println "Numbor.Rule.loose().apply(1) => " + numbor2
+        println "Numbor.Rule.loose().apply(null) => " + Numbor.Rule.loose().apply(null)
+        println "Numbor.Rule.STRICT.apply(null) => " + Numbor.Rule.strict().apply(null)
+        Numbor.Rule nullAsZero = Numbor.rule(Numbor.Rule.NULL_AS_0);
+        System.out.println(nullAsZero.isInfinityAs0());
         Numbor n2 = nullAsZero.apply(1);
         System.out.println(n2);
         n2.equals(1)
@@ -34,11 +31,11 @@ class NumborSpec extends Specification {
 
 
     def "宽松模式 add"() {
-        def res = Numbor.Rule.LOOSE.apply(n1).add(n2)
+        def res = Numbor.Rule.loose().apply(n1).add(n2)
         println res
         expect:
         res.equals(r)
-        new Numbor(n1, Numbor.Rule.LOOSE).add(n2).get().intValue() == expectResult
+        new Numbor(n1, Numbor.Rule.loose()).add(n2).get().intValue() == expectResult
 
         where:
         n1   | n2  | r              || expectResult
@@ -49,11 +46,11 @@ class NumborSpec extends Specification {
     }
 
     def "宽松模式 sub"() {
-        def res = Numbor.Rule.LOOSE.apply(n1).sub(n2)
+        def res = Numbor.Rule.loose().apply(n1).sub(n2)
         println res
         expect:
         res.equals(r)
-        new Numbor(n1, Numbor.Rule.LOOSE).sub(n2).get().intValue() == expectResult
+        new Numbor(n1, Numbor.Rule.loose()).sub(n2).get().intValue() == expectResult
 
         where:
         n1   | n2  | r             || expectResult
@@ -65,11 +62,11 @@ class NumborSpec extends Specification {
 
     @Unroll
     def "宽松模式 div n1=#n1, n2=#n2"() {
-        def res = Numbor.Rule.LOOSE.apply(n1).div(n2)
+        def res = Numbor.Rule.loose().apply(n1).div(n2)
         println res
         expect:
         res.equals(r)
-        new Numbor(n1, Numbor.Rule.LOOSE).div(n2).get().intValue() == expectResult
+        new Numbor(n1, Numbor.Rule.loose()).div(n2).get().intValue() == expectResult
 
         where:
         n1   | n2  | r                 || expectResult
@@ -81,11 +78,11 @@ class NumborSpec extends Specification {
 
     @Unroll
     def "严格模式 div n1=#n1, n2=#n2"() {
-        def res = Numbor.Rule.STRICT.apply(n1).div(n2)
+        def res = Numbor.Rule.strict().apply(n1).div(n2)
         println res
         expect:
         res.equals(r)
-        new Numbor(n1, Numbor.Rule.STRICT).div(n2).orElse(0).intValue() == expectResult
+        new Numbor(n1, Numbor.Rule.strict()).div(n2).orElse(0).intValue() == expectResult
 
         where:
         n1   | n2 | r                                    || expectResult

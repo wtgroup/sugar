@@ -15,8 +15,11 @@ public class FooTest {
 
     @Test
     public void foo5() {
-        Double d = Double.NaN;
-        System.out.println(d.intValue());
+        RuleFlag ruleFlag = new RuleFlag(RuleFlag.IGNORE_NULL | RuleFlag.NULL0 | RuleFlag.INFINITY0);
+        System.out.println(ruleFlag);
+        // ruleFlag.add(RuleFlag.IGNORE_NAN | RuleFlag.NULL0 | RuleFlag.INFINITY0);
+        // System.out.println(ruleFlag);
+        System.out.println(ruleFlag.has(RuleFlag.NULL0));
     }
 
 

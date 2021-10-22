@@ -48,6 +48,14 @@ public abstract class AbstractFlag {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if(this == obj) return true;
+        if(obj == null || this.getClass() != obj.getClass()) return true;
+
+        return this.state == ((AbstractFlag) obj).state;
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Field f : this.flagNameFields) {

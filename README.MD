@@ -189,11 +189,36 @@ System.out.println(lamb.to(CaseFormat.UPPER_UNDERSCORE));   // => HELLO_FIELD_NA
 ```
 
 
-## 数字计算器工具类 `com.wtgroup.sugar.operation.Calculator`
+## 数字类 `com.wtgroup.sugar.math.Numbor`
+
+像 Number 类, 但比它更有趣!
+
 在不知道计算因子是否为null时, 多个数字为了处理 Null Exception 很是麻烦.
 使用本工具类, 则不用关系是否为null的问题.
-demo: `com.wtgroup.sugar.operation.CalculatorTest`
 
+demo: `com.wtgroup.sugar.math.NumborSpec`, `com.wtgroup.sugar.math.NumborTest`.
+
+```
+3.0 - 2.0 等于?
+3.0 - 2.0 == 1.0 ?
+
+(double) 0.3 - 0.2; // 0.09999999999999998
+(double) 0.3 - 0.2 == 1.0; // false
+// o~o, NumberUtil 可以帮你
+NumberUtil.sub(0.3, 0.2); // 0.1
+NumberUtil.sub(0.3, 0.2) == 0.1; // true
+// Numbor 也可以
+new Numbor(0.3).sub(0.2); // 0.1
+new Numbor(0.3).sub(0.2).equals(0.1); // true
+
+// 但但, NumberUtil 在多个变量, 同时又不知道是否 null, 是否为 0 时, 在计算前需要很多判断校验, 绕费心思...
+// NumberUtil.div(1, null); // NullPointerException
+NumberUtil.mul(1, null); // 应该等于多少? 1 or 0 ?
+// NumberUtil.div(1, 0); // ArithmeticException
+
+// 看我的!
+new Numbor(1).mul((Number) null).add(12345).div(0).orElse(0); // 管它什么null, 无脑算就是了  => 0
+```
 
 ## `TypeDescor`
 

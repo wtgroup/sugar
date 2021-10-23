@@ -493,6 +493,7 @@ public class Numbor implements Comparable<Numbor>, Serializable {
 
         private static final Rule STRICT = new Rule();
         private static final Rule LOOSE = new Rule(Rule.NULL_AS_0 | Rule.INFINITY_AS_0 | Rule.NAN_AS_0);
+        private static final Rule IGNORE = new Rule(Rule.IGNORE_NULL | Rule.IGNORE_INFINITY | Rule.IGNORE_NAN);
 
         // -- 忽略特殊值, 优先级高于下面 AS 规则 --
         public static final int IGNORE_NULL     = 1;
@@ -519,6 +520,13 @@ public class Numbor implements Comparable<Numbor>, Serializable {
          */
         public static Rule loose() {
             return LOOSE;
+        }
+
+        /**
+         * 忽略所有异常值
+         */
+        public static Rule ignore() {
+            return IGNORE;
         }
 
         /**

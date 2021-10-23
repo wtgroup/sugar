@@ -94,6 +94,22 @@ class NumborSpec extends Specification {
     }
 
     @Unroll
+    def "规则 ignore: n1=#n1, n2=#n2, n3=#n3"() {
+        def res = Numbor.Rule.strict().apply(n1).div(n2)
+        println res
+        expect:
+        Numbor.rule(Numbor.Rule.IGNORE_NULL).apply(n1).mul(n2).equals(r1)
+        Numbor.rule(Numbor.Rule.IGNORE_INFINITY | Numbor.Rule.IGNORE_NAN).apply(n1).mul(n2).equals(r2)
+
+        where:
+        n1                       | n2 || r1                       | r2
+        null                     | 2  || 2                        | Numbor.EMPTY
+        null                     | 0  || 0                        | Numbor.EMPTY
+        Double.NaN               | 10 || Double.NaN               | 10
+        Double.POSITIVE_INFINITY | 10 || Double.POSITIVE_INFINITY | 10
+    }
+
+    @Unroll
     def "取结果 n1=#n1 n2=#n2"() {
         expect:
         Numbor.rule(Numbor.Rule.NAN_AS_0 | Numbor.Rule.INFINITY_AS_0).apply(n1).div(n2).isValid()

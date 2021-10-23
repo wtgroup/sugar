@@ -42,10 +42,26 @@ import java.util.function.Supplier;
  * </pre>
  * <p>
  * 一些不合法的运算处理思路:
- * 1. 分子非 0, 分母 0 => ±Infinity
- * 2. 分子 0, 分母 0 => NaN
- * 3. 分子非Infinity, 分母 Infinity => 0
+ * <li>1. 分子非 0, 分母 0 => ±Infinity
+ * <li>2. 分子 0, 分母 0 => NaN
+ * <li>3. 分子非Infinity, 分母 Infinity => 0
  * +Infinity * 1 --> 1/0 * 1 => 1/0 == +Infinity
+ * <p>
+ * <br>
+ * <h4>规则配置</h4>
+ * <p>
+ * 分为'ignore'和'as'两类, 前者表示忽略异常值, 不参与运算, 后者表示按照规则将异常值转为正常值参与运算.
+ * 优先级更高, 同时设置会覆盖后者.
+ * <p>
+ * 默认, 都是false, 即按照jdk正常运算规则计算.
+ *
+ * <li>IGNORE_NULL: 忽略 null 值. 如 <code>null * 8 = 8</code>
+ * <li>IGNORE_INFINITY: 忽略无穷大. 如 <code>1/0 + 8 = 8</code>
+ * <li>IGNORE_NAN: 忽略NaN. 如 <code>0/0 + 8 = 8</code>
+ * <li>NULL_AS_0: null 当作 0 参与运算. 如 <code>null * 8 = 0</code>
+ * <li>INFINITY_AS_0: 无穷大当作 0 参与运算. 如 <code>1/0 + 8 = 8</code>
+ * <li>NAN_AS_0: NaN 当作 0 参与运算. 如 <code>0/0 + 8 = 8</code>
+ *
  * <p>
  * 特殊值计算二维表
  * <p>
@@ -191,7 +207,23 @@ public class Numbor implements Comparable<Numbor>, Serializable {
     }
 
     private Numbor tryCalculate(Numbor other, BiFunction<Number, Number, Number> calculator, BiFunction<Double, Double, Number> onException) {
-        if (this.isEmpty() || other == null || other.isEmpty()) {
+        // other 对象 null, 忽略
+        if (other == null) {
+            return this;
+        }
+
+        // 异常值忽略处理, 如果设置响应策略, 且刚好有对应异常值, 则忽略, 不运算
+        if (rule.isIgnoreNull() && (isEmpty() || other.isEmpty())) {
+            return isEmpty() ? (other.isEmpty() ? EMPTY : other) : this;
+        }
+        if (rule.isIgnoreInfinity() && (isInfinity() || other.isInfinity())) {
+            return isInfinity() ? (other.isInfinity() ? EMPTY : other) : this;
+        }
+        if (rule.isIgnoreNan() && (isNaN() || other.isNaN())) {
+            return isNaN() ? (other.isNaN() ? EMPTY : other) : this;
+        }
+
+        if (this.isEmpty() || other.isEmpty()) {
             return EMPTY;
         }
         // 先正常计算, 一旦遇到 Exception 说明, 有特殊值, 导致正常价计算失败, 此时, 取 double 值计算, 按照 double 边界值规则计算出结果
@@ -347,6 +379,10 @@ public class Numbor implements Comparable<Numbor>, Serializable {
                 && !Double.isNaN(this.get().doubleValue());
     }
 
+    /**
+     * @param other {@link Number} | {@link Numbor}
+     * @return Boolean
+     */
     @Override
     public boolean equals(Object other) {
         if (other == this) return true;
@@ -454,17 +490,8 @@ public class Numbor implements Comparable<Numbor>, Serializable {
     @Builder
     @Accessors(chain = true)
     public static class Rule extends AbstractFlag implements Serializable {
-        /**
-         * 严格模式
-         * <p>
-         * 默认
-         */
+
         private static final Rule STRICT = new Rule();
-        /**
-         * 宽松模式
-         * <p>
-         * null as 0, NaN as 0, infinity as 0
-         */
         private static final Rule LOOSE = new Rule(Rule.NULL_AS_0 | Rule.INFINITY_AS_0 | Rule.NAN_AS_0);
 
         // -- 忽略特殊值, 优先级高于下面 AS 规则 --
@@ -488,7 +515,7 @@ public class Numbor implements Comparable<Numbor>, Serializable {
         /**
          * 宽松模式
          * <p>
-         * null as 0, NaN as 0, infinity as 0
+         * null as 0, NaN as 0, Infinity as 0
          */
         public static Rule loose() {
             return LOOSE;

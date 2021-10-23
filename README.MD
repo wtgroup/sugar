@@ -168,24 +168,27 @@ System.out.println(composite);
 
 
 
-## `Lambda` 工具: 方法名-->字段名 (`com.wtgroup.sugar.reflect.LambdaUtil`)
+## `FieldNameUtil` 方法名->字段名 (`com.wtgroup.sugar.reflect.FieldNameUtil`)
 
-目前主要功能是将类的`getter`方法`Lambda`解析成对应的属性名.
+将类的`getter`方法`Lambda`解析成对应的属性名.
 
 你有没有这样的感受? 比如在查表中的某些字段时, 不得不硬编码这些字段名. 当表有所变动时, 不得不用肉眼检查相关代码, 同步调整.
 有了这个工具, 便可以利用编辑器帮你检查. 如果只是简单修改字段名, 仅仅利用编辑器的重构, 代码就同步修改好了. 
 
 ```java
-// com.wtgroup.sugar.reflect.FieldNameUtilsTest
-String s = LambdaUtil.fieldName(User::getUname);
-System.out.println(s);                                      // => uname
-String s1 = LambdaUtil.fieldName(User::getAge);
-System.out.println(s1);                                     // => age
-System.out.println(LambdaUtil.fieldName(User::isMale));    // => male
+// 基本使用
+String result = FieldNameUtil.fromAccessor("getName");
+Assert.assertEquals("name", result);
+String result1 = FieldNameUtil.fromAccessor("setIsBool");
+Assert.assertEquals("isBool", result1);
+String result2 = FieldNameUtil.fromAccessor("getURL");
+Assert.assertEquals("URL", result2);
+String result3 = FieldNameUtil.fromAccessor("setuName");
+Assert.assertEquals("uName", result3);
 
-LambdaUtils.Origin lamb = LambdaUtil.of(User::getHelloFieldNameUtils);
-System.out.println(lamb.getFieldName());                    // 原样 helloFieldNameUtils
-System.out.println(lamb.to(CaseFormat.UPPER_UNDERSCORE));   // => HELLO_FIELD_NAME_UTILS
+// 还可以转换风格
+String result = FieldNameUtil.get(User::getHelloFieldNameUtils, CaseFormat.LOWER_HYPHEN);
+Assert.assertEquals("hello-field-name-utils", result);
 ```
 
 

@@ -88,8 +88,8 @@ class NumborSpec extends Specification {
         n1   | n2 | r                                    || expectResult
         9    | 2  | new Numbor(9 / 2)                    || 4
         null | 0  | Numbor.EMPTY                         || 0
-        3    | 0  | new Numbor(Double.POSITIVE_INFINITY) || Integer.MAX_VALUE
-        -3   | 0  | new Numbor(Double.NEGATIVE_INFINITY) || Integer.MIN_VALUE
+        3    | 0  | new Numbor(Double.POSITIVE_INFINITY) || 0
+        -3   | 0  | new Numbor(Double.NEGATIVE_INFINITY) || 0
         0    | 0  | new Numbor(Double.NaN)               || 0 // NaN.intValue => 0
     }
 

@@ -95,7 +95,7 @@ import java.util.function.Supplier;
  * @author L&J
  * @date 2021-10-21
  */
-public class Numbor implements Comparable<Numbor>, Serializable {
+public class Numbor extends Number implements Comparable<Numbor>, Serializable {
     /**
      * 全局唯一的, 代表 null Number
      * 在判null时, 关于null的规则不适用
@@ -127,6 +127,26 @@ public class Numbor implements Comparable<Numbor>, Serializable {
      */
     private Numbor() {
         this(0, Rule.STRICT);
+    }
+
+    @Override
+    public int intValue() {
+        return isEmpty() ? 0 : get().intValue();
+    }
+
+    @Override
+    public long longValue() {
+        return isEmpty() ? 0 : get().intValue();
+    }
+
+    @Override
+    public float floatValue() {
+        return isEmpty() ? 0F : get().floatValue();
+    }
+
+    @Override
+    public double doubleValue() {
+        return isEmpty() ? 0D : get().doubleValue();
     }
 
     /**

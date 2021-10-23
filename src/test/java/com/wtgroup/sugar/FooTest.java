@@ -18,9 +18,11 @@ public class FooTest {
     public void foo5() {
         Double[] dbs = {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NaN};
         for (Double a : dbs) {
-            for (Double b : dbs) {
-                System.out.printf("%5d", Double.compare(a, b));
-            }
+            // for (Double b : dbs) {
+            //     System.out.printf("%5d", Double.compare(a, b));
+            // }
+            // System.out.println();
+            System.out.printf("%10d , %10d, %10s", a.intValue(), a.longValue(), a.doubleValue());
             System.out.println();
         }
     }

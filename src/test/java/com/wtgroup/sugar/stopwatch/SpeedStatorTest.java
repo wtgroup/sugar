@@ -2,14 +2,13 @@ package com.wtgroup.sugar.stopwatch;
 
 import lombok.SneakyThrows;
 import org.junit.Assert;
-import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
 public class SpeedStatorTest {
 
     @SneakyThrows
-    @Test
+    // @Test
     public void demo() {
         // SpeedStator speedStator = new SpeedStator("ss-demo", (momentInfo, ex) -> {
         //     System.out.println(momentInfo + "\n" + ex);

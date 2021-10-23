@@ -13,14 +13,18 @@ import java.math.BigDecimal;
  */
 public class FooTest {
 
+
     @Test
     public void foo5() {
-        RuleFlag ruleFlag = new RuleFlag(RuleFlag.IGNORE_NULL | RuleFlag.NULL0 | RuleFlag.INFINITY0);
-        System.out.println(ruleFlag);
-        // ruleFlag.add(RuleFlag.IGNORE_NAN | RuleFlag.NULL0 | RuleFlag.INFINITY0);
-        // System.out.println(ruleFlag);
-        System.out.println(ruleFlag.has(RuleFlag.NULL0));
+        Double[] dbs = {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NaN};
+        for (Double a : dbs) {
+            for (Double b : dbs) {
+                System.out.printf("%5d", Double.compare(a, b));
+            }
+            System.out.println();
+        }
     }
+
 
 
     @Test

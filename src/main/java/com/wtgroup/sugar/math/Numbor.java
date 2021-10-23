@@ -3,7 +3,6 @@ package com.wtgroup.sugar.math;
 import cn.hutool.core.util.NumberUtil;
 import com.wtgroup.sugar.lang.AbstractFlag;
 import lombok.Builder;
-import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -80,7 +79,7 @@ import java.util.function.Supplier;
  * @author L&J
  * @date 2021-10-21
  */
-public class Numbor implements Serializable {
+public class Numbor implements Comparable<Numbor>, Serializable {
     /**
      * 全局唯一的, 代表 null Number
      * 在判null时, 关于null的规则不适用
@@ -93,7 +92,7 @@ public class Numbor implements Serializable {
      * <p>
      * 你永远不知道也不必知道它实际是什么,
      * 而且, 永远不要试图直接获取它, 任何时候取值要用 get(),
-     * 并提前使用 isNull 判断
+     * 并提前使用 isEmpty 判断
      */
     private final Number value;
 
@@ -133,15 +132,15 @@ public class Numbor implements Serializable {
     }
 
     /**
-     * {@code isNull()} 不通过时时抛异常 {@link NoSuchElementException}
+     * {@code isEmpty()} 不通过时时抛异常 {@link NoSuchElementException}
      *
      * @return
      */
     public Number get() {
-        if (isNull()) {
+        if (isEmpty()) {
             throw new NoSuchElementException("No value present");
         }
-        // 经过 isNull 的校验, value==null, 说明刚好就是 value == null && rule.nullAsZero 的情况
+        // 经过 isEmpty 的校验, value==null, 说明刚好就是 value == null && rule.nullAs0 的情况
         if (value == null && rule.isNullAs0()) {
             return 0;
         }
@@ -164,7 +163,7 @@ public class Numbor implements Serializable {
      * @return
      */
     public Number orElse(Number other) {
-        return !isNull() ? get() : other;
+        return isValid() ? get() : other;
     }
 
     /**
@@ -175,7 +174,7 @@ public class Numbor implements Serializable {
      * @return
      */
     public Number orElseGet(Supplier<? extends Number> other) {
-        return notNull() ? get() : other.get();
+        return isValid() ? get() : other.get();
     }
 
     /**
@@ -186,13 +185,13 @@ public class Numbor implements Serializable {
      * @throws NullPointerException if value is present and {@code consumer} is
      *                              null
      */
-    public void ifPresent(Consumer<? super Number> consumer) {
-        if (notNull())
+    public void ifValid(Consumer<? super Number> consumer) {
+        if (isValid())
             consumer.accept(this.get());
     }
 
     private Numbor tryCalculate(Numbor other, BiFunction<Number, Number, Number> calculator, BiFunction<Double, Double, Number> onException) {
-        if (this.isNull() || other == null || other.isNull()) {
+        if (this.isEmpty() || other == null || other.isEmpty()) {
             return EMPTY;
         }
         // 先正常计算, 一旦遇到 Exception 说明, 有特殊值, 导致正常价计算失败, 此时, 取 double 值计算, 按照 double 边界值规则计算出结果
@@ -278,7 +277,7 @@ public class Numbor implements Serializable {
      * @return 新值
      */
     public Numbor round(int scale, RoundingMode roundingMode) {
-        if (this.isNull()) {
+        if (this.isEmpty()) {
             return EMPTY;
         }
 
@@ -293,7 +292,7 @@ public class Numbor implements Serializable {
     }
 
     public boolean isZero() {
-        if (notNull() && !isNaN() && !isInfinity()) {
+        if (isNotEmpty() && !isNaN() && !isInfinity()) {
             return tryGet(
                     () -> BigDecimal.ZERO.compareTo(BigDecimal.valueOf(this.get().doubleValue())) == 0,
                     () -> this.get().doubleValue() == 0);
@@ -303,22 +302,22 @@ public class Numbor implements Serializable {
     }
 
     public boolean isNaN() {
-        return notNull() && Double.isNaN(this.get().doubleValue());
+        return isNotEmpty() && Double.isNaN(this.get().doubleValue());
     }
 
     public boolean isPositiveInfinity() {
-        return notNull() && this.get().doubleValue() == Double.POSITIVE_INFINITY;
+        return isNotEmpty() && this.get().doubleValue() == Double.POSITIVE_INFINITY;
     }
 
     public boolean isNegativeInfinity() {
-        return notNull() && this.get().doubleValue() == Double.NEGATIVE_INFINITY;
+        return isNotEmpty() && this.get().doubleValue() == Double.NEGATIVE_INFINITY;
     }
 
     public boolean isInfinity() {
-        return notNull() && Double.isInfinite(this.get().doubleValue());
+        return isNotEmpty() && Double.isInfinite(this.get().doubleValue());
     }
 
-    public boolean isNull() {
+    public boolean isEmpty() {
         // empty 就是 empty 关于 null 的宽容规则不适用
         if (this == EMPTY) {
             return true;
@@ -333,8 +332,19 @@ public class Numbor implements Serializable {
         return false;
     }
 
-    public boolean notNull() {
-        return !isNull();
+    public boolean isNotEmpty() {
+        return !isEmpty();
+    }
+
+    /**
+     * 是否有效: 不为 null, 且不是 NaN, Infinity
+     *
+     * 取最终计算结果, 会先经过次方法校验.
+     */
+    public boolean isValid() {
+        return isNotEmpty()
+                && !Double.isInfinite(this.get().doubleValue())
+                && !Double.isNaN(this.get().doubleValue());
     }
 
     @Override
@@ -349,10 +359,10 @@ public class Numbor implements Serializable {
             return false;
         }
 
-        if (this.isNull() && y.isNull()) {
+        if (this.isEmpty() && y.isEmpty()) {
             return true;
         }
-        if (this.isNull() || y.isNull()) {
+        if (this.isEmpty() || y.isEmpty()) {
             return false;
         }
         // both not null
@@ -372,7 +382,7 @@ public class Numbor implements Serializable {
 
     @Override
     public String toString() {
-        if (this.isNull()) {
+        if (this.isEmpty()) {
             return "null";
         }
         Number value = this.get();
@@ -390,6 +400,33 @@ public class Numbor implements Serializable {
         }
     }
 
+    /**
+     * 比较大小
+     * <p>
+     * 大小顺序
+     * <pre>
+     * Double.NEGATIVE_INFINITY < Double.POSITIVE_INFINITY < Double.NaN < EMPTY
+     * </pre>
+     */
+    @Override
+    public int compareTo(Numbor other) {
+        if (other == null) {
+            return -1;
+        }
+        if (isNotEmpty() && other.isNotEmpty()) {
+            return tryGet(
+                    () -> Double.compare(this.get().doubleValue(), other.get().doubleValue()),
+                    () -> 0
+            );
+        } else if (isNotEmpty()) {
+            return -1;
+        } else if (other.isNotEmpty()) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
 
     private static class Empty extends Numbor {
 
@@ -398,7 +435,7 @@ public class Numbor implements Serializable {
         }
 
         @Override
-        public boolean isNull() {
+        public boolean isEmpty() {
             return true;
         }
 

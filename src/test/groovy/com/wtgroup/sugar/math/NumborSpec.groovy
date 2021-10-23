@@ -93,6 +93,36 @@ class NumborSpec extends Specification {
         0    | 0  | new Numbor(Double.NaN)               || 0 // NaN.intValue => 0
     }
 
+    @Unroll
+    def "取结果 n1=#n1 n2=#n2"() {
+        expect:
+        Numbor.rule(Numbor.Rule.NAN_AS_0 | Numbor.Rule.INFINITY_AS_0).apply(n1).div(n2).isValid()
+        !new Numbor(n1).div(n2).isValid()
+        println "invalid orElse: " + new Numbor(n1).div(n2).orElse(9999)
+
+        where:
+        n1 | n2 | n3
+        0  | 0  | 0
+        1  | 0  | 0
+
+    }
+
+    @Unroll
+    def "compareTo n1=#n1 n2=#n2"() {
+        expect:
+        new Numbor(n1).compareTo(new Numbor(n2)) == r
+
+        where:
+        n1                       | n2                       | r
+        0                        | 0                        | 0
+        1                        | 0                        | 1
+        null                     | null                     | 0
+        null                     | 1                        | 1
+        Double.POSITIVE_INFINITY | 1                        | 1
+        Double.POSITIVE_INFINITY | Double.NEGATIVE_INFINITY | 1
+        Double.NaN               | Double.NEGATIVE_INFINITY | 1
+    }
+
 
 }
 

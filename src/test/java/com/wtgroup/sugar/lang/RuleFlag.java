@@ -1,11 +1,4 @@
-package com.wtgroup.sugar;
-
-import com.wtgroup.sugar.lang.AbstractFlag;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
+package com.wtgroup.sugar.lang;
 
 /**
  * @author L_J

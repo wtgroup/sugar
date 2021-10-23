@@ -194,7 +194,7 @@ Assert.assertEquals("hello-field-name-utils", result);
 
 ## 数字类 `com.wtgroup.sugar.math.Numbor`
 
-像 Number 类, 但比它更有趣!
+继承 Number 类, 但比它更有趣!
 
 在不知道计算因子是否为null时, 多个数字为了处理 Null Exception 很是麻烦.
 使用本工具类, 则不用关系是否为null的问题.

@@ -23,7 +23,7 @@ class MimeTypeEnumTest extends Specification {
     @Unroll
     def "GetContentType ext=#ext"() {
         expect:
-        MimeType.getContentType(ext) == expectResult
+        MimeType.getContentType(ext).get() == expectResult
 
         where:
         ext     || expectResult

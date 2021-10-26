@@ -164,12 +164,9 @@ public enum MimeType {
      * @param extension 上传的文件扩展名. '.jpg' | 'jpg'
      * @return mime类型
      */
-    public static String getContentType(String extension) {
+    public static Optional<String> getContentType(String extension) {
         Optional<MimeType> mimeTypeEnum = MimeType.getByExtension(extension);
-        if (mimeTypeEnum.isPresent()) {
-            return mimeTypeEnum.get().getMimeType();
-        }
-        return BIN.getMimeType();
+        return mimeTypeEnum.map(MimeType::getMimeType);
     }
 
 }

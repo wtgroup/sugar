@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2021-10-27
  */
 @Getter
-public enum MimeTypeEnum {
+public enum MimeType {
 
     // -- text -----------------------------------------------------------------
     CSS("css", "级联样式表（CSS）", "text/css"),
@@ -108,7 +108,7 @@ public enum MimeTypeEnum {
     ;
 
     // 扩展->Enum
-    private static final Map<String, WeakReference<MimeTypeEnum>> EXTENSION_MIME_TYPE_MAP = new ConcurrentHashMap<>();
+    private static final Map<String, WeakReference<MimeType>> EXTENSION_MIME_TYPE_MAP = new ConcurrentHashMap<>();
 
     //扩展名
     private final String extension;
@@ -122,7 +122,7 @@ public enum MimeTypeEnum {
      * @param explain   类型说明
      * @param mimeType  Mime对应的类型
      */
-    MimeTypeEnum(String extension, String explain, String mimeType) {
+    MimeType(String extension, String explain, String mimeType) {
         this.extension = extension;
         this.explain = explain;
         this.mimeType = mimeType;
@@ -134,7 +134,7 @@ public enum MimeTypeEnum {
      * @param extension 扩展名
      * @return 枚举类
      */
-    public static Optional<MimeTypeEnum> getByExtension(String extension) {
+    public static Optional<MimeType> getByExtension(String extension) {
         if (StringUtils.isEmpty(extension)) {
             return Optional.empty();
         }
@@ -144,10 +144,10 @@ public enum MimeTypeEnum {
         }
 
         final String finalExtension = extension;
-        MimeTypeEnum res = Optional.ofNullable(EXTENSION_MIME_TYPE_MAP.get(extension))
+        MimeType res = Optional.ofNullable(EXTENSION_MIME_TYPE_MAP.get(extension))
                 .map(WeakReference::get)
                 .orElseGet(() -> {
-                    for (MimeTypeEnum typeEnum : MimeTypeEnum.values()) {
+                    for (MimeType typeEnum : MimeType.values()) {
                         if (typeEnum.getExtension().equalsIgnoreCase(finalExtension)) {
                             return typeEnum;
                         }
@@ -165,7 +165,7 @@ public enum MimeTypeEnum {
      * @return mime类型
      */
     public static String getContentType(String extension) {
-        Optional<MimeTypeEnum> mimeTypeEnum = MimeTypeEnum.getByExtension(extension);
+        Optional<MimeType> mimeTypeEnum = MimeType.getByExtension(extension);
         if (mimeTypeEnum.isPresent()) {
             return mimeTypeEnum.get().getMimeType();
         }

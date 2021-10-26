@@ -8,22 +8,22 @@ class MimeTypeEnumTest extends Specification {
     @Unroll
     def "GetByExtension ext=#ext"() {
         expect:
-        MimeTypeEnum.getByExtension(ext).get() == expectResult
+        MimeType.getByExtension(ext).get() == expectResult
 
         where:
         ext     || expectResult
-        ".jpg"  || MimeTypeEnum.JPG
-        "jpg"   || MimeTypeEnum.JPG
-        ".jpeg" || MimeTypeEnum.JPEG
-        ".JPEg" || MimeTypeEnum.JPEG
-        "xls"   || MimeTypeEnum.XLS
-        "avi"   || MimeTypeEnum.AVI
+        ".jpg"  || MimeType.JPG
+        "jpg"   || MimeType.JPG
+        ".jpeg" || MimeType.JPEG
+        ".JPEg" || MimeType.JPEG
+        "xls"   || MimeType.XLS
+        "avi"   || MimeType.AVI
     }
 
     @Unroll
     def "GetContentType ext=#ext"() {
         expect:
-        MimeTypeEnum.getContentType(ext) == expectResult
+        MimeType.getContentType(ext) == expectResult
 
         where:
         ext     || expectResult

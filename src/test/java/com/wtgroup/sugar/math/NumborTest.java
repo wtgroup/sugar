@@ -7,6 +7,12 @@ import java.util.Arrays;
 public class NumborTest {
 
     @Test
+    public void foo() {
+        System.out.println((double) 0.3 - (double) 0.2 == (double)0.1);
+    }
+
+
+    @Test
     public void loose() {
         System.out.println(Numbor.Rule.loose().apply(null).add((Number) null));
         System.out.println(Numbor.Rule.loose().apply(null).div((Number) null));

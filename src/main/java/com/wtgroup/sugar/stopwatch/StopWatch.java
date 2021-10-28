@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.LinkedList;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 秒表增强<br>
@@ -51,6 +52,7 @@ import java.util.LinkedList;
  *
  * </pre>
  *
+ * 注: 不建议并发使用, 可能计时不准.
  * @author Spring Framework, Looly
  * @since 4.6.6
  */
@@ -88,6 +90,8 @@ public class StopWatch {
 	 * 保留最近的 task info 最大数量
 	 */
 	private int maxTaskInfoSize = 1000;
+
+	private final ReentrantLock lock = new ReentrantLock();
 
 	// ------------------------------------------------------------------------------------------- Constructor start
 
@@ -212,16 +216,26 @@ public class StopWatch {
 		this.totalTimeNanos += lastTime;
 		this.lastTaskInfo = new TaskInfo(this.currentTaskName, lastTime);
 		if (null != this.taskList) {
+			this.taskList.add(this.lastTaskInfo);
+			this.tryRemoveEarly();
+		}
+		++this.taskCount;
+		this.currentTaskName = null;
+	}
+
+	/**删除超过长度限制的早期 task info, 并发下, 有个人完成就够了*/
+	private void tryRemoveEarly() {
+		if(!lock.tryLock()) return;
+		try {
 			int ext = this.taskList.size() - this.maxTaskInfoSize;
-			if (ext >= 0) {
+			if (ext >= 0) { // 并发下, 删除过程中, 别人增加了, 会删除"不干净"(容忍)
 				for (int i = 0; i <= ext; i++) {
 					this.taskList.removeFirst();
 				}
 			}
-			this.taskList.add(this.lastTaskInfo);
+		} finally {
+			lock.unlock();
 		}
-		++this.taskCount;
-		this.currentTaskName = null;
 	}
 
 	/**

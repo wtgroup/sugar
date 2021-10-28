@@ -20,11 +20,11 @@ import java.util.function.Supplier;
  * <p>
  * <pre>
  * 3.0 - 2.0 等于?
- * 3.0 - 2.0 == 1.0 ?
+ * 3.0 - 2.0 == 0.1 ?
  * </pre>
  * <pre>
  * (double) 0.3 - 0.2; // 0.09999999999999998
- * (double) 0.3 - 0.2 == 1.0; // false
+ * (double) 0.3 - 0.2 == 0.1; // false
  * // o~o, NumberUtil 可以帮你
  * NumberUtil.sub(0.3, 0.2); // 0.1
  * NumberUtil.sub(0.3, 0.2) == 0.1; // true
@@ -38,7 +38,7 @@ import java.util.function.Supplier;
  * // NumberUtil.div(1, 0); // ArithmeticException
  *
  * // 看我的!
- * new Numbor(1).mul((Number) null).add(12345).div(0).orElse(0); // 管它什么null, 无脑算就是了  => 0
+ * new Numbor(1).mul((Number) null).add(12345).div(0).orElse(0); // 管它什么null, 无脑算就是了 => 0
  * </pre>
  * <p>
  * 一些不合法的运算处理思路:

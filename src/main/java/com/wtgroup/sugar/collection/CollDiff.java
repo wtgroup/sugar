@@ -9,19 +9,43 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * 计算集合差集, 交集
+ *
+ * @param <C1> 集合 1
+ * @param <C2> 集合 2
+ * @param <E>
+ * @author L&J
+ * @date 2021-10-01 21:15:44
+ */
 @Getter
 public class CollDiff<C1 extends Collection<E>, C2 extends Collection<E>, E> {
 
+    /**
+     * 集合 1 - 集合 2
+     */
     private List<E> onlyCollection1;
+    /**
+     * 集合 2 - 集合 1
+     */
     private List<E> onlyCollection2;
+    /**
+     * 集合 1 ∩ 集合 2
+     */
     private List<E> intersection;
+    /**
+     * 集合 1
+     */
     private C1 collection1;
+    /**
+     * 集合 2
+     */
     private C2 collection2;
 
     private CollDiff() {}
 
     /**
-     * {@link CollDiff#of(java.util.Collection, java.util.Collection, java.util.function.Function)} 快捷方式. key 就是元素自身.
+     * {@link CollDiff#of(Collection, Collection, Function)} 快捷方式. key 就是元素自身.
      */
     public static <C1 extends Collection<E>, C2 extends Collection<E>, E> CollDiff<C1, C2, E> of(C1 collection1, C2 collection2) {
         return of(collection1, collection2, t -> t);

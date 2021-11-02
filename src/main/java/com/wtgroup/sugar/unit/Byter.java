@@ -49,20 +49,20 @@ public class Byter implements Comparable<Byter>, Serializable {
         // Byte
         B(1, "B"),
         // Kilobyte
-        KB(K, "KB"),
+        KB(K, "K"),
         // Megabyte
-        MB(K*KB.value,"MB"),
+        MB(K*KB.value,"M"),
         // Gigabyte
-        GB(K*MB.value,"GB"),
+        GB(K*MB.value,"G"),
         // Trillionbyte
-        TB(K*GB.value,"TB"),
+        TB(K*GB.value,"T"),
         // Petabyte
-        PB(K*TB.value,"PB"),
+        PB(K*TB.value,"P"),
         // Exabyte
-        EB(K*PB.value,"EB"),
+        EB(K*PB.value,"E"),
         ;
-        private long value;
-        private String unit;
+        private final long value;
+        private final String unit;
 
         ByteUnit(long size, String unit) {
             this.value = size;
@@ -71,7 +71,7 @@ public class Byter implements Comparable<Byter>, Serializable {
 
         @Override
         public String toString() {
-            return value+unit;
+            return value + "B";
         }
     }
 
@@ -169,26 +169,46 @@ public class Byter implements Comparable<Byter>, Serializable {
         return Long.compare(this.bytes, otherByter.bytes);
     }
 
-    // todo 简单的保留 3 位小数的string , 改为 'toShortString', toString 仿照 Duration , 1G2M3K4B
+    // @Override
+    // public String toString() {
+    //     float size = 0;
+    //     String unit = "B";
+    //     if (bytes < ByteUnit.KB.value) {
+    //         size=this.toB();
+    //         unit = ByteUnit.B.unit;
+    //     } else if (bytes < ByteUnit.MB.value) {
+    //         size=this.toKB();
+    //         unit = ByteUnit.KB.unit;
+    //     } else if (bytes < ByteUnit.GB.value) {
+    //         size=this.toMB();
+    //         unit = ByteUnit.MB.unit;
+    //     } else {
+    //         size=this.toGB();
+    //         unit = ByteUnit.GB.unit;
+    //     }
+    //
+    //     return THREE_DECIMALS_FORMATER.format(size) + unit;
+    // }
+
     @Override
     public String toString() {
-        float size = 0;
-        String unit = "B";
-        if (bytes < ByteUnit.KB.value) {
-            size=this.toB();
-            unit = ByteUnit.B.unit;
-        } else if (bytes < ByteUnit.MB.value) {
-            size=this.toKB();
-            unit = ByteUnit.KB.unit;
-        } else if (bytes < ByteUnit.GB.value) {
-            size=this.toMB();
-            unit = ByteUnit.MB.unit;
-        } else {
-            size=this.toGB();
-            unit = ByteUnit.GB.unit;
+        ByteUnit[] values = ByteUnit.values();
+        long remain = this.bytes;
+        StringBuilder sb = new StringBuilder();
+        int len = values.length;
+        for (int i = len - 1; i >= 0; i--) {
+            ByteUnit byteUnit = values[i];
+            long n = remain / byteUnit.value;
+            if (n > 0) {
+                sb.append(n).append(byteUnit.unit);
+            }
+            remain %= byteUnit.value;
+            if(remain == 0){
+                break;
+            }
         }
 
-        return THREE_DECIMALS_FORMATER.format(size) + unit;
+        return sb.toString();
     }
 
 

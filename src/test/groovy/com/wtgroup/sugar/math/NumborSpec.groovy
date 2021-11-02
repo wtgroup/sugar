@@ -17,6 +17,7 @@ class NumborSpec extends Specification {
     def "demo"() {
         expect:
         Numbor numbor = new Numbor(1);
+        numbor.add(numbor)
         println "new Numbor(1) => " + numbor
         Numbor numbor2 = Numbor.Rule.loose().apply(1);
         println "Numbor.Rule.loose().apply(1) => " + numbor2

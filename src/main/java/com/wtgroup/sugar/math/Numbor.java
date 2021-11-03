@@ -149,6 +149,21 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
         return isEmpty() ? 0D : get().doubleValue();
     }
 
+    // /**
+    //  * 输出 BigDecimal 快捷方式
+    //  * <p>
+    //  * 无效数字输出 null !!
+    //  *
+    //  * @return BigDecimal
+    //  */
+    // public BigDecimal bigDecimal() {
+    //     if (!isValid()) {
+    //         return null;
+    //     }
+    //     Number val = this.get();
+    //     return NumberUtil.toBigDecimal(val);
+    // }
+
     /**
      * 默认 {@link Rule.STRICT} 模式
      *

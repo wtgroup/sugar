@@ -40,6 +40,13 @@ public class FieldNameUtilTest {
         String result3 = FieldNameUtil.fromAccessor("setuName");
         Assert.assertEquals("uName", result3);
     }
+
+    @Test
+    public void lclu() {
+        System.out.println(FieldNameUtil.lc2lu(User::getHelloFieldNameUtils));
+        System.out.println(FieldNameUtil.lu2lc(User::getI_am_xia_Huaxian));
+    }
+
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme

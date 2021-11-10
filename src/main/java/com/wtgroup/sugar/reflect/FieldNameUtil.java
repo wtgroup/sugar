@@ -28,6 +28,19 @@ public class FieldNameUtil {
         return srcFormat.to(toFormat, get(accessor));
     }
 
+    /**
+     * CaseFormat.LOWER_CAMEL -> CaseFormat.LOWER_UNDERSCORE
+     */
+    public static <T> String lc2lu(SFunction<T, ?> accessor) {
+        return get(accessor, CaseFormat.LOWER_CAMEL, CaseFormat.LOWER_UNDERSCORE);
+    }
+
+    /**
+     * CaseFormat.LOWER_UNDERSCORE -> CaseFormat.LOWER_CAMEL
+     */
+    public static <T> String lu2lc(SFunction<T, ?> accessor) {
+        return get(accessor, CaseFormat.LOWER_UNDERSCORE, CaseFormat.LOWER_CAMEL);
+    }
 
     /**
      * 参考: {@code org.apache.ibatis.reflection.property.PropertyNamer#methodToProperty}

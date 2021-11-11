@@ -110,7 +110,7 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
      * 而且, 永远不要试图直接获取它, 任何时候取值要用 get(),
      * 并提前使用 isEmpty 判断
      */
-    private final Number value;
+    private Number value;
 
     /**
      * 透传应用到后续入参 Number,
@@ -269,7 +269,8 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
             res = onException.apply(this.get().doubleValue(), other.get().doubleValue());
         }
 
-        return new Numbor(res, this.rule);
+        this.value = res;
+        return this;
     }
 
     public Numbor add(Number other) {
@@ -351,7 +352,8 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
         return tryGet(
                 () -> {
                     BigDecimal round = NumberUtil.round(String.valueOf(this.get()), scale, roundingMode);
-                    return new Numbor(round, rule);
+                    this.value = round;
+                    return this;
                 },
                 // 特殊值, 无法 round, 原样返回
                 () -> this

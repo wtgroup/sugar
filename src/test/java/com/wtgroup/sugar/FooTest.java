@@ -1,10 +1,13 @@
 package com.wtgroup.sugar;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.NumberUtil;
+import com.alibaba.fastjson.JSON;
 import com.wtgroup.sugar.math.Numbor;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author dafei
@@ -16,15 +19,10 @@ public class FooTest {
 
     @Test
     public void foo5() {
-        Double[] dbs = {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NaN};
-        for (Double a : dbs) {
-            // for (Double b : dbs) {
-            //     System.out.printf("%5d", Double.compare(a, b));
-            // }
-            // System.out.println();
-            System.out.printf("%10d , %10d, %10s", a.intValue(), a.longValue(), a.doubleValue());
-            System.out.println();
-        }
+        Numbor numbor = new Numbor(89);
+        System.out.println(JSON.toJSONString(numbor));
+        DateTime dt = new DateTime(new Date());
+        System.out.println(JSON.toJSONString(dt));
     }
 
 

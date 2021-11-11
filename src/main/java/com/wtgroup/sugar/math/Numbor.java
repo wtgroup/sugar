@@ -207,6 +207,11 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
         return value;
     }
 
+    public Numbor set(Number value) {
+        this.value = value;
+        return this;
+    }
+
     /**
      * 若不想看到 NPE, 建议使用此方法, 指定一个降级的默认值.
      *
@@ -249,17 +254,20 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
 
         // 异常值忽略处理, 如果设置响应策略, 且刚好有对应异常值, 则忽略, 不运算
         if (rule.isIgnoreNull() && (isEmpty() || other.isEmpty())) {
-            return isEmpty() ? (other.isEmpty() ? EMPTY : other) : this;
+            // return isEmpty() ? (other.isEmpty() ? EMPTY : other) : this;
+            return isEmpty() ? set(other.get()) : this; // other 有效, 才取它的值来更新我的值
         }
         if (rule.isIgnoreInfinity() && (isInfinity() || other.isInfinity())) {
-            return isInfinity() ? (other.isInfinity() ? EMPTY : other) : this;
+            // return isInfinity() ? (other.isInfinity() ? EMPTY : other) : this;
+            return isInfinity() ? set(other.get()) : this;
         }
         if (rule.isIgnoreNan() && (isNaN() || other.isNaN())) {
-            return isNaN() ? (other.isNaN() ? EMPTY : other) : this;
+            return isNaN() ? set(other.get()) : this;
         }
 
         if (this.isEmpty() || other.isEmpty()) {
-            return EMPTY;
+            // return EMPTY;
+            return this;
         }
         // 先正常计算, 一旦遇到 Exception 说明, 有特殊值, 导致正常价计算失败, 此时, 取 double 值计算, 按照 double 边界值规则计算出结果
         Number res = null;
@@ -269,8 +277,7 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
             res = onException.apply(this.get().doubleValue(), other.get().doubleValue());
         }
 
-        this.value = res;
-        return this;
+        return set(res);
     }
 
     public Numbor add(Number other) {
@@ -346,14 +353,14 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
      */
     public Numbor round(int scale, RoundingMode roundingMode) {
         if (this.isEmpty()) {
-            return EMPTY;
+            // return EMPTY;
+            return this;
         }
 
         return tryGet(
                 () -> {
                     BigDecimal round = NumberUtil.round(String.valueOf(this.get()), scale, roundingMode);
-                    this.value = round;
-                    return this;
+                    return set(round);
                 },
                 // 特殊值, 无法 round, 原样返回
                 () -> this

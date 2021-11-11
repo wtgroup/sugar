@@ -96,12 +96,12 @@ import java.util.function.Supplier;
  * @date 2021-10-21
  */
 public class Numbor extends Number implements Comparable<Numbor>, Serializable {
-    /**
-     * 全局唯一的, 代表 null Number
-     * 在判null时, 关于null的规则不适用
-     * Common instance for {@code empty()}.
-     */
-    public static final Numbor EMPTY = new Empty();
+    // /**
+    //  * 全局唯一的, 代表 null Number
+    //  * 在判null时, 关于null的规则不适用
+    //  * Common instance for {@code empty()}.
+    //  */
+    // public static final Numbor EMPTY = new Empty();
 
     /**
      * 内部值
@@ -394,10 +394,10 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
     }
 
     public boolean isEmpty() {
-        // empty 就是 empty 关于 null 的宽容规则不适用
-        if (this == EMPTY) {
-            return true;
-        }
+        // // empty 就是 empty 关于 null 的宽容规则不适用
+        // if (this == EMPTY) {
+        //     return true;
+        // }
         if (value == null) {
             if (rule.isNullAs0()) {
                 return false;
@@ -508,22 +508,22 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
     }
 
 
-    private static class Empty extends Numbor {
-
-        public Empty() {
-            super(null, Rule.STRICT);
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            return "null";
-        }
-    }
+    // private static class Empty extends Numbor {
+    //
+    //     public Empty() {
+    //         super(null, Rule.STRICT);
+    //     }
+    //
+    //     @Override
+    //     public boolean isEmpty() {
+    //         return true;
+    //     }
+    //
+    //     @Override
+    //     public String toString() {
+    //         return "null";
+    //     }
+    // }
 
     /**
      * 规则项:

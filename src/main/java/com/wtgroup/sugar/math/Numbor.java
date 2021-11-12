@@ -91,7 +91,7 @@ import java.util.function.Supplier;
  * </pre>
  * <p>
  * 注: 对性能极致要求时, 不建议使用, 请使用简单的基本运算.
- *
+ * 注: 多 Numbor 运算时, 注意使用一致的规则, 否则可能结果非预预期.
  * @author L&J
  * @date 2021-10-21
  */
@@ -116,7 +116,7 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
      * 透传应用到后续入参 Number,
      * 如果传入 Numbor 以我的为主.
      */
-    private Rule rule;
+    private final Rule rule;
 
     public static Rule rule(int ruleFlags) {
         return new Rule(ruleFlags);
@@ -215,7 +215,7 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
      * @return
      */
     public Number orElse(Number other) {
-        return isValid() ? get() : other;
+        return isNotEmpty() ? get() : other;
     }
 
     /**
@@ -226,18 +226,22 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
      * @return
      */
     public Number orElseGet(Supplier<? extends Number> other) {
-        return isValid() ? get() : other.get();
+        return isNotEmpty() ? get() : other.get();
     }
 
     /**
-     * empty 时返回候补值
+     * 无效时返回候补值
      * <p>
      * orElse 的规则时 是否有效
      *
      * @param other 候补值
      */
-    public Number emptyOrElse(Number other) {
-        return isEmpty() ? other : get();
+    public Number orElseInvalid(Number other) {
+        return isValid() ? get() : other;
+    }
+
+    public Number orElseInvalidGet(Supplier<? extends Number> other) {
+        return isValid() ? get() : other.get();
     }
 
     /**
@@ -248,6 +252,11 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
      * @throws NullPointerException if value is present and {@code consumer} is
      *                              null
      */
+    public void ifPresent(Consumer<? super Number> consumer) {
+        if (isNotEmpty())
+            consumer.accept(this.get());
+    }
+
     public void ifValid(Consumer<? super Number> consumer) {
         if (isValid())
             consumer.accept(this.get());
@@ -258,8 +267,7 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
         if (other == null) {
             return this;
         }
-
-        other.rule = this.rule; // to-do ??
+        other = wrap(other);
 
         // 异常值忽略处理, 如果设置响应策略, 且刚好有对应异常值, 则忽略, 不运算
         if (rule.isIgnoreNull() && (isEmpty() || other.isEmpty())) {
@@ -345,7 +353,7 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
      * other / self
      */
     public Numbor divBy(Number other) {
-        Numbor other1 = new Numbor(other, rule);
+        Numbor other1 = wrap(other);
         other1.div(this);
         return other1.isEmpty() ? set(null) : set(other1.get());
     }
@@ -354,7 +362,7 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
      * other / self
      */
     public Numbor divBy(Numbor other) {
-        Numbor other1 = new Numbor(other != null ? other.orElse(null) : null, rule);
+        Numbor other1 = wrap(other);
         other1.div(this);
         return other1.isEmpty() ? set(null) : set(other1.get());
     }
@@ -392,6 +400,15 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
                 // 特殊值, 无法 round, 原样返回
                 () -> this
         );
+    }
+
+    // 应用我的 rule 复制一份
+    private Numbor wrap(Numbor origin) {
+        return new Numbor(origin != null ? origin.orElse(null) : null, rule);
+    }
+
+    private Numbor wrap(Number origin) {
+        return new Numbor(origin, rule);
     }
 
     public boolean isZero() {

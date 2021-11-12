@@ -84,7 +84,7 @@ class NumborSpec extends Specification {
         println res
         expect:
         res.equals(r)
-        new Numbor(n1, Numbor.Rule.strict()).div(n2).orElse(0).intValue() == expectResult
+        new Numbor(n1, Numbor.Rule.strict()).div(n2).orElseInvalid(0).intValue() == expectResult
 
         where:
         n1   | n2 | r                                    || expectResult

@@ -10,6 +10,7 @@ import spock.lang.Unroll
 class NumborSpec extends Specification {
 
     static Number nil = null
+    static Numbor EMPTY = new Numbor(null)
 
     def setup() {
     }
@@ -88,7 +89,7 @@ class NumborSpec extends Specification {
         where:
         n1   | n2 | r                                    || expectResult
         9    | 2  | new Numbor(9 / 2)                    || 4
-        null | 0  | Numbor.EMPTY                         || 0
+        null | 0  | EMPTY                                || 0
         3    | 0  | new Numbor(Double.POSITIVE_INFINITY) || 0
         -3   | 0  | new Numbor(Double.NEGATIVE_INFINITY) || 0
         0    | 0  | new Numbor(Double.NaN)               || 0 // NaN.intValue => 0
@@ -104,8 +105,8 @@ class NumborSpec extends Specification {
 
         where:
         n1                       | n2 || r1                       | r2
-        null                     | 2  || 2                        | Numbor.EMPTY
-        null                     | 0  || 0                        | Numbor.EMPTY
+        null                     | 2  || 2                        | EMPTY
+        null                     | 0  || 0                        | EMPTY
         Double.NaN               | 10 || Double.NaN               | 10
         Double.POSITIVE_INFINITY | 10 || Double.POSITIVE_INFINITY | 10
     }

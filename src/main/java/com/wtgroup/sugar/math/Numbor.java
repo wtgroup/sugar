@@ -95,7 +95,7 @@ import java.util.function.Supplier;
  * @author L&J
  * @date 2021-10-21
  */
-public class Numbor extends Number implements Comparable<Numbor>, Serializable {
+public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializable {
     // /**
     //  * 全局唯一的, 代表 null Number
     //  * 在判null时, 关于null的规则不适用
@@ -116,7 +116,7 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
      * 透传应用到后续入参 Number,
      * 如果传入 Numbor 以我的为主.
      */
-    private final Rule rule;
+    private Rule rule;
 
     public static Rule rule(int ruleFlags) {
         return new Rule(ruleFlags);
@@ -129,22 +129,18 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
         this(0, Rule.STRICT);
     }
 
-    @Override
     public int intValue() {
         return isEmpty() ? 0 : get().intValue();
     }
 
-    @Override
     public long longValue() {
         return isEmpty() ? 0 : get().intValue();
     }
 
-    @Override
     public float floatValue() {
         return isEmpty() ? 0F : get().floatValue();
     }
 
-    @Override
     public double doubleValue() {
         return isEmpty() ? 0D : get().doubleValue();
     }
@@ -234,6 +230,17 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
     }
 
     /**
+     * empty 时返回候补值
+     * <p>
+     * orElse 的规则时 是否有效
+     *
+     * @param other 候补值
+     */
+    public Number emptyOrElse(Number other) {
+        return isEmpty() ? other : get();
+    }
+
+    /**
      * If a value is present, invoke the specified consumer with the value,
      * otherwise do nothing.
      *
@@ -251,6 +258,8 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
         if (other == null) {
             return this;
         }
+
+        other.rule = this.rule; // to-do ??
 
         // 异常值忽略处理, 如果设置响应策略, 且刚好有对应异常值, 则忽略, 不运算
         if (rule.isIgnoreNull() && (isEmpty() || other.isEmpty())) {
@@ -330,6 +339,24 @@ public class Numbor extends Number implements Comparable<Numbor>, Serializable {
                 NumberUtil::div,
                 (selfDbl, otherDbl) -> selfDbl / otherDbl
         );
+    }
+
+    /**
+     * other / self
+     */
+    public Numbor divBy(Number other) {
+        Numbor other1 = new Numbor(other, rule);
+        other1.div(this);
+        return other1.isEmpty() ? set(null) : set(other1.get());
+    }
+
+    /**
+     * other / self
+     */
+    public Numbor divBy(Numbor other) {
+        Numbor other1 = new Numbor(other != null ? other.orElse(null) : null, rule);
+        other1.div(this);
+        return other1.isEmpty() ? set(null) : set(other1.get());
     }
 
     /**

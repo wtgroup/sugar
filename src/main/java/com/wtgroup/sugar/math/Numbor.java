@@ -92,16 +92,17 @@ import java.util.function.Supplier;
  * <p>
  * 注: 对性能极致要求时, 不建议使用, 请使用简单的基本运算.
  * 注: 多 Numbor 运算时, 注意使用一致的规则, 否则可能结果非预预期.
+ * 注: 运算后可能返回原对象也可能返回新对象. 永远不会修改传入的 Numbor 的值. 永远当作新对象就好.
  * @author L&J
  * @date 2021-10-21
  */
 public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializable {
-    // /**
-    //  * 全局唯一的, 代表 null Number
-    //  * 在判null时, 关于null的规则不适用
-    //  * Common instance for {@code empty()}.
-    //  */
-    // public static final Numbor EMPTY = new Empty();
+    /**
+     * 全局唯一的, 代表 null Number
+     * 在判null时, 关于null的规则不适用
+     * Common instance for {@code empty()}.
+     */
+    public static final Numbor EMPTY = new Numbor(null);
 
     /**
      * 内部值
@@ -110,7 +111,7 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
      * 而且, 永远不要试图直接获取它, 任何时候取值要用 get(),
      * 并提前使用 isEmpty 判断
      */
-    private Number value;
+    private final Number value;
 
     /**
      * 透传应用到后续入参 Number,
@@ -203,10 +204,10 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
         return value;
     }
 
-    public Numbor set(Number value) {
-        this.value = value;
-        return this;
-    }
+    // public Numbor set(Number value) {
+    //     this.value = value;
+    //     return this;
+    // }
 
     /**
      * 若不想看到 NPE, 建议使用此方法, 指定一个降级的默认值.
@@ -267,24 +268,23 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
         if (other == null) {
             return this;
         }
-        other = wrap(other);
+        // other = wrap(other);
 
         // 异常值忽略处理, 如果设置响应策略, 且刚好有对应异常值, 则忽略, 不运算
         if (rule.isIgnoreNull() && (isEmpty() || other.isEmpty())) {
             // return isEmpty() ? (other.isEmpty() ? EMPTY : other) : this;
-            return isEmpty() ? set(other.get()) : this; // other 有效, 才取它的值来更新我的值
+            return isEmpty() ? other : this; // other 有效
         }
         if (rule.isIgnoreInfinity() && (isInfinity() || other.isInfinity())) {
             // return isInfinity() ? (other.isInfinity() ? EMPTY : other) : this;
-            return isInfinity() ? set(other.get()) : this;
+            return isInfinity() ? other : this;
         }
         if (rule.isIgnoreNan() && (isNaN() || other.isNaN())) {
-            return isNaN() ? set(other.get()) : this;
+            return isNaN() ? other : this;
         }
 
-        if (this.isEmpty() || other.isEmpty()) {
-            // return EMPTY;
-            return this;
+        if (this.isEmpty() || other.isEmpty()) { // here, 不忽略null, 但遇到null, 返回 EMPTY
+            return EMPTY;
         }
         // 先正常计算, 一旦遇到 Exception 说明, 有特殊值, 导致正常价计算失败, 此时, 取 double 值计算, 按照 double 边界值规则计算出结果
         Number res = null;
@@ -294,7 +294,7 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
             res = onException.apply(this.get().doubleValue(), other.get().doubleValue());
         }
 
-        return set(res);
+        return wrap(res);
     }
 
     public Numbor add(Number other) {
@@ -354,8 +354,8 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
      */
     public Numbor divBy(Number other) {
         Numbor other1 = wrap(other);
-        other1.div(this);
-        return other1.isEmpty() ? set(null) : set(other1.get());
+        return other1.div(this);
+        // return other1.isEmpty() ? set(null) : set(other1.get());
     }
 
     /**
@@ -363,8 +363,8 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
      */
     public Numbor divBy(Numbor other) {
         Numbor other1 = wrap(other);
-        other1.div(this);
-        return other1.isEmpty() ? set(null) : set(other1.get());
+        return other1.div(this);
+        // return other1.isEmpty() ? set(null) : set(other1.get());
     }
 
     /**
@@ -395,7 +395,7 @@ public class Numbor /*extends Number*/ implements Comparable<Numbor>, Serializab
         return tryGet(
                 () -> {
                     BigDecimal round = NumberUtil.round(String.valueOf(this.get()), scale, roundingMode);
-                    return set(round);
+                    return wrap(round);
                 },
                 // 特殊值, 无法 round, 原样返回
                 () -> this

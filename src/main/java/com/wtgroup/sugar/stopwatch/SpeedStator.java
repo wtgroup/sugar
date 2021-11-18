@@ -260,7 +260,7 @@ public class SpeedStator {
         String extraMsgTxt = null;
 
         if (extraMsg_Args != null && extraMsg_Args.length > 0) {
-            if (extraMsg_Args[0] instanceof CharSequence) {
+            if (extraMsg_Args[0] instanceof CharSequence && extraMsg_Args.length > 1) { // 模板+参数
                 Object[] args = Arrays.copyOfRange(extraMsg_Args, 1, extraMsg_Args.length);
                 extraMsgTxt = StrUtil.format((CharSequence) extraMsg_Args[0], args);
             } else {

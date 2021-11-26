@@ -57,19 +57,21 @@ class EmptyUtilTest extends Specification {
         EmptyUtil.JDK_MODE.isEmpty(subject, otherEmptyCases) == expectedResult
 
         where:
-        subject       | otherEmptyCases || expectedResult
-        null          | args            || true
-        ""            | args            || true
-        "  \n \t "    | args            || true
-        "null"        | args            || false
-        "NULL"        | args            || false
-        0             | args            || false
-        0L            | args            || false
-        0.000         | args            || false
-        []            | args            || true
-        new HashMap() | args            || true
-        9999          | args            || false
-        9999          | 9999            || true
+        subject          | otherEmptyCases || expectedResult
+        null             | args            || true
+        ""               | args            || true
+        "  \n \t "       | args            || true
+        "null"           | args            || false
+        "NULL"           | args            || false
+        0                | args            || false
+        0L               | args            || false
+        0.000            | args            || false
+        []               | args            || true
+        new HashMap()    | args            || true
+        9999             | args            || false
+        9999             | 9999            || true
+        [].toArray()     | null            || true
+        [1, 2].toArray() | null            || false
     }
 
     @Unroll

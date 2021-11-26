@@ -1,6 +1,7 @@
 package com.wtgroup.sugar.util;
 
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 
@@ -118,6 +119,8 @@ public class EmptyUtil {
                 flg = ((Collection<?>) subject).isEmpty();
             } else if (subject instanceof Map) {
                 flg = ((Map<?, ?>) subject).isEmpty();
+            } else if (ArrayUtil.isArray(subject)) {
+                flg = ArrayUtil.isEmpty((Object[]) subject);
             }
 
             return flg;
@@ -144,6 +147,8 @@ public class EmptyUtil {
                 flg = ((Collection<?>) subject).isEmpty();
             } else if (subject instanceof Map) {
                 flg = ((Map<?, ?>) subject).isEmpty();
+            } else if (ArrayUtil.isArray(subject)) {
+                flg = ArrayUtil.isEmpty((Object[])subject);
             }
 
             return flg;

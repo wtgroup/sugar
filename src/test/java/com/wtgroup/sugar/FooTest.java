@@ -1,13 +1,11 @@
 package com.wtgroup.sugar;
 
-import cn.hutool.core.date.DateTime;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.NumberUtil;
-import com.alibaba.fastjson.JSON;
 import com.wtgroup.sugar.math.Numbor;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * @author dafei
@@ -19,10 +17,12 @@ public class FooTest {
 
     @Test
     public void foo5() {
-        Numbor numbor = new Numbor(89);
-        System.out.println(JSON.toJSONString(numbor));
-        DateTime dt = new DateTime(new Date());
-        System.out.println(JSON.toJSONString(dt));
+        int[] ints = {1, 3};
+        Long[] longs = {1L, 3L};
+        System.out.println(ints.getClass().isArray());
+        System.out.println(longs.getClass().isArray());
+        System.out.println(ArrayUtil.isArray(ints));
+        System.out.println(ArrayUtil.isArray(longs));
     }
 
 

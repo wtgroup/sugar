@@ -46,6 +46,10 @@ public class EmptyUtil {
         return defaultMode.isEmpty(subject, otherEmptyCases);
     }
 
+    public static boolean isNotEmpty(Object subject, Object... otherEmptyCases) {
+        return !isEmpty(subject, otherEmptyCases);
+    }
+
     public static <T> T defaultIfEmpty(final T subject, final T defaultValue, Object... emptyCases) {
         return defaultMode.defaultIfEmpty(subject, defaultValue, emptyCases);
     }
@@ -62,6 +66,10 @@ public class EmptyUtil {
          * @return
          */
         boolean isEmpty(Object subject, Object... otherEmptyCases);
+
+        default boolean isNotEmpty(Object subject, Object... otherEmptyCases) {
+            return !isEmpty(subject, otherEmptyCases);
+        }
 
         /**
          * @param subject    目标对象

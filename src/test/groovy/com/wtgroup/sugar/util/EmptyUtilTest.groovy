@@ -31,6 +31,7 @@ class EmptyUtilTest extends Specification {
 
         expect:
         EmptyUtil.isEmpty(subject, otherEmptyCases) == expectedResult
+        !EmptyUtil.isNotEmpty(subject, otherEmptyCases) == expectedResult
 
         where:
         subject       | otherEmptyCases || expectedResult
@@ -55,6 +56,7 @@ class EmptyUtilTest extends Specification {
 
         expect:
         EmptyUtil.JDK_MODE.isEmpty(subject, otherEmptyCases) == expectedResult
+        !EmptyUtil.JDK_MODE.isNotEmpty(subject, otherEmptyCases) == expectedResult
 
         where:
         subject          | otherEmptyCases || expectedResult

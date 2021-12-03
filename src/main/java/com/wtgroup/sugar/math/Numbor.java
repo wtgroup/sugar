@@ -19,8 +19,8 @@ import java.util.function.Supplier;
  * Just like {@link Number} , but far more amusing!
  * <p>
  * <pre>
- * 3.0 - 2.0 等于?
- * 3.0 - 2.0 == 0.1 ?
+ * 0.3 - 0.2 等于?
+ * 0.3 - 0.2 == 0.1 ?
  * </pre>
  * <pre>
  * (double) 0.3 - 0.2; // 0.09999999999999998

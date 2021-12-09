@@ -26,6 +26,8 @@ public class EmptyUtil {
 
     /*注: 新增模式, 以 static final 以此列出. 字段名: {xxx}_MODE */
 
+    public static final EmptyMode STRICT_MODE = new StrictEmptyMode();
+
     /**
      * jdk 代码层面的空
      * 1. 空白符

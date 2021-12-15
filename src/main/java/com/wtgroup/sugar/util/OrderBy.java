@@ -38,6 +38,10 @@ public class OrderBy {
         return of(CaseTransform.LC2LU);
     }
 
+    public static OrderBy of(String... columnAlias) {
+        return of(CaseTransform.LC2LU, columnAlias);
+    }
+
     public static OrderBy of(CaseTransform caseTransform, String... columnAlias) {
         OrderBy orderBy = new OrderBy();
         if (columnAlias != null) {

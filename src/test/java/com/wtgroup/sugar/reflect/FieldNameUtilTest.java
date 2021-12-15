@@ -2,6 +2,7 @@ package com.wtgroup.sugar.reflect;
 
 import com.google.common.base.CaseFormat;
 import com.wtgroup.sugar.bean.User;
+import com.wtgroup.sugar.enums.CaseTransform;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,6 +28,9 @@ public class FieldNameUtilTest {
         // Assert.assertEquals("replaceMeWithExpectedResult", result);
         String result1 = FieldNameUtil.get(User::getI_am_xia_Huaxian, CaseFormat.LOWER_UNDERSCORE, CaseFormat.LOWER_HYPHEN);
         Assert.assertEquals("i-am-xia-Huaxian", result1);
+        String result2 = FieldNameUtil.get(User::getI_am_xia_Huaxian, CaseTransform.LU2LH);
+        Assert.assertEquals("i-am-xia-Huaxian", result2);
+
     }
 
     @Test

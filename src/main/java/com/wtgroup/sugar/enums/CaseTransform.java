@@ -2,7 +2,6 @@ package com.wtgroup.sugar.enums;
 
 import com.google.common.base.CaseFormat;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 /**
  * {@link CaseFormat} 枚举类组合简化
@@ -11,7 +10,6 @@ import lombok.Getter;
  * @author L&J
  * @date 2021-12-15 16:45:46
  */
-@Getter
 @AllArgsConstructor
 public enum CaseTransform {
     LC2LU(CaseFormat.LOWER_CAMEL, CaseFormat.LOWER_UNDERSCORE),
@@ -26,7 +24,7 @@ public enum CaseTransform {
     UC2LH(CaseFormat.UPPER_CAMEL, CaseFormat.LOWER_HYPHEN),
     UC2UU(CaseFormat.UPPER_CAMEL, CaseFormat.UPPER_UNDERSCORE),
     ;
-    private final CaseFormat from;
-    private final CaseFormat to;
+    public final CaseFormat FROM;
+    public final CaseFormat TO;
 
 }

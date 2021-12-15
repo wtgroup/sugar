@@ -2,7 +2,6 @@ package com.wtgroup.sugar.util;
 
 import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.StrUtil;
-import com.google.common.base.CaseFormat;
 import com.wtgroup.sugar.collection.SsMap;
 import com.wtgroup.sugar.enums.CaseTransform;
 import com.wtgroup.sugar.function.SFunction;
@@ -33,7 +32,7 @@ public class OrderBy {
      * 决定字段风格转换规则, 默认 Low camel -> Low underscore.
      * 注: 在最终生成 SQL 片段时转换类名.
      */
-    private CaseTransform caseTransform;
+    private CaseTransform caseTransform = CaseTransform.LC2LU;
 
     public static OrderBy of() {
         return of(CaseTransform.LC2LU);
@@ -94,7 +93,7 @@ public class OrderBy {
      * @param <T>       实体类
      */
     public <T> OrderBy orderBy(SFunction<T, ?> column, String direction) {
-        return orderBy(FieldNameUtil.get(column, CaseFormat.LOWER_CAMEL, CaseFormat.LOWER_UNDERSCORE), direction);
+        return orderBy(FieldNameUtil.get(column, caseTransform), direction);
     }
 
     public OrderBy orderBy(String column, boolean isAsc) {
@@ -119,7 +118,7 @@ public class OrderBy {
     }
 
     private String caseFormatting(String origin) {
-        return this.caseTransform.getFrom().to(this.caseTransform.getTo(), origin);
+        return this.caseTransform.FROM.to(this.caseTransform.TO, origin);
     }
 
     /**

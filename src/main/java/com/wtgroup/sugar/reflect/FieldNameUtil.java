@@ -1,6 +1,7 @@
 package com.wtgroup.sugar.reflect;
 
 import com.google.common.base.CaseFormat;
+import com.wtgroup.sugar.enums.CaseTransform;
 import com.wtgroup.sugar.function.SFunction;
 
 import java.beans.Introspector;
@@ -24,6 +25,11 @@ public class FieldNameUtil {
         return get(accessor, CaseFormat.LOWER_CAMEL, toFormat);
     }
 
+    public static <T> String get(SFunction<T, ?> accessor, CaseTransform caseTransform) {
+        return caseTransform.FROM.to(caseTransform.TO, get(accessor));
+    }
+
+    // 建议 get(SFunction<T, ?> accessor, CaseTransform caseTransform) 代替
     public static <T> String get(SFunction<T, ?> accessor, CaseFormat srcFormat, CaseFormat toFormat) {
         return srcFormat.to(toFormat, get(accessor));
     }

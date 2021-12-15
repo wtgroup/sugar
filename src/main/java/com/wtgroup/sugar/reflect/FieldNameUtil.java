@@ -25,11 +25,23 @@ public class FieldNameUtil {
         return get(accessor, CaseFormat.LOWER_CAMEL, toFormat);
     }
 
+    /**
+     * 获取指定命名风格的字段名
+     * <p>
+     * 推荐使用.
+     *
+     * @param accessor      getter
+     * @param caseTransform 风格转换枚举
+     * @param <T>           实体类
+     * @return 风格转换后的字段名
+     */
     public static <T> String get(SFunction<T, ?> accessor, CaseTransform caseTransform) {
         return caseTransform.FROM.to(caseTransform.TO, get(accessor));
     }
 
-    // 建议 get(SFunction<T, ?> accessor, CaseTransform caseTransform) 代替
+    /**
+     * 建议 get(SFunction<T, ?> accessor, CaseTransform caseTransform) 代替
+     */
     public static <T> String get(SFunction<T, ?> accessor, CaseFormat srcFormat, CaseFormat toFormat) {
         return srcFormat.to(toFormat, get(accessor));
     }

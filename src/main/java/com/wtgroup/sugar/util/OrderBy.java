@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Tuple;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.base.CaseFormat;
 import com.wtgroup.sugar.collection.SsMap;
+import com.wtgroup.sugar.enums.CaseTransform;
 import com.wtgroup.sugar.function.SFunction;
 import com.wtgroup.sugar.reflect.FieldNameUtil;
 
@@ -28,15 +29,23 @@ public class OrderBy {
      */
     private final List<Tuple> orderByList = new ArrayList<>();
     private final Map<String, String> columnAliasMapping = new HashMap<>();
+    /**
+     * 决定字段风格转换规则, 默认 Low camel -> Low underscore.
+     * 注: 在最终生成 SQL 片段时转换类名.
+     */
+    private CaseTransform caseTransform;
 
     public static OrderBy of() {
-        return of(new String[]{});
+        return of(CaseTransform.LC2LU);
     }
 
-    public static OrderBy of(String... columnAlias) {
+    public static OrderBy of(CaseTransform caseTransform, String... columnAlias) {
         OrderBy orderBy = new OrderBy();
         if (columnAlias != null) {
             orderBy.configColumnAlias(columnAlias);
+        }
+        if (caseTransform != null) {
+            orderBy.configCaseTransform(caseTransform);
         }
         return orderBy;
     }
@@ -61,6 +70,15 @@ public class OrderBy {
      */
     public OrderBy configColumnAlias(Map<String, String> columnAlias) {
         this.columnAliasMapping.putAll(columnAlias);
+        return this;
+    }
+
+    /**
+     * 配置字段风格转换规则
+     * @param caseTransform 风格转换规则
+     */
+    public OrderBy configCaseTransform(CaseTransform caseTransform) {
+        this.caseTransform = caseTransform;
         return this;
     }
 
@@ -100,6 +118,10 @@ public class OrderBy {
         return this;
     }
 
+    private String caseFormatting(String origin) {
+        return this.caseTransform.getFrom().to(this.caseTransform.getTo(), origin);
+    }
+
     /**
      * 终端操作: 获取 sql 片段
      * 不含 order by 关键字
@@ -118,7 +140,7 @@ public class OrderBy {
             if (sb.length() > 0) {
                 sb.append(", ");
             }
-            sb.append(column).append(" ").append(direction);
+            sb.append(caseFormatting(column)).append(" ").append(direction);
         }
 
         return sb.toString();
@@ -142,6 +164,5 @@ public class OrderBy {
         this.orderByList.clear();
         return this;
     }
-
 
 }

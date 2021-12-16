@@ -15,6 +15,7 @@ import java.util.Map;
 /**
  * <p>
  *
+ * 注: 字段别名永远指的数据库表字段的别名. 也就是说, 先转换命名风格为最终字段名, 然后换成别名.
  * @author L&J
  * @date 2021/10/18 2:25 下午
  */
@@ -38,10 +39,18 @@ public class OrderBy {
         return of(CaseTransform.LC2LU);
     }
 
+    /**
+     *
+     * @param columnAlias 注意: 字段别名永远指的数据库表字段的别名. 也就是说, 先转换命名风格为最终字段名, 然后换成别名.
+     */
     public static OrderBy of(String... columnAlias) {
         return of(CaseTransform.LC2LU, columnAlias);
     }
 
+    /**
+     * @param caseTransform 命名风格转换规则
+     * @param columnAlias 注意: 字段别名永远指的数据库表字段的别名. 也就是说, 先转换命名风格为最终字段名, 然后换成别名.
+     */
     public static OrderBy of(CaseTransform caseTransform, String... columnAlias) {
         OrderBy orderBy = new OrderBy();
         if (columnAlias != null) {
@@ -59,6 +68,8 @@ public class OrderBy {
 
     /**
      * 配置列别名
+     * <p>
+     * 注意: 字段别名永远指的数据库表字段的别名. 也就是说, 先转换命名风格为最终字段名, 然后换成别名.
      *
      * @param columnAlias 原名, 别名, 原名, 别名, ...
      */
@@ -136,14 +147,16 @@ public class OrderBy {
 
         StringBuilder sb = new StringBuilder();
         for (Tuple tuple : orderByList) {
-            String column = tuple.get(0);
-            String direction = tuple.get(1);
-            // 列别名
-            column = this.columnAliasMapping.getOrDefault(column, column);
             if (sb.length() > 0) {
                 sb.append(", ");
             }
-            sb.append(caseFormatting(column)).append(" ").append(direction);
+            String column = tuple.get(0);
+            String direction = tuple.get(1);
+            // 先转换命名风格
+            column = caseFormatting(column);
+            // 再别名转换
+            column = this.columnAliasMapping.getOrDefault(column, column);
+            sb.append(column).append(" ").append(direction);
         }
 
         return sb.toString();

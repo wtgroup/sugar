@@ -7,10 +7,7 @@ import com.wtgroup.sugar.enums.CaseTransform;
 import com.wtgroup.sugar.function.SFunction;
 import com.wtgroup.sugar.reflect.FieldNameUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -34,6 +31,8 @@ public class OrderBy {
      * 注: 在最终生成 SQL 片段时转换类名.
      */
     private CaseTransform caseTransform = CaseTransform.LC2LU;
+    private final Set<String> inclusiveColumns = new HashSet<>();
+    private final Set<String> exclusiveColumns = new HashSet<>();
 
     public static OrderBy of() {
         return of(CaseTransform.LC2LU);
@@ -96,6 +95,32 @@ public class OrderBy {
         return this;
     }
 
+    /**
+     * 配置包含的字段
+     *
+     * 默认无限制(空).
+     * 最终表字段名.
+     */
+    public OrderBy configInclusiveColumns(String... columns) {
+        if (columns != null) {
+            Collections.addAll(inclusiveColumns, columns);
+        }
+        return this;
+    }
+
+    /**
+     * 配置排除的字段
+     * <p>
+     * 默认无限制(空).
+     * 最终表字段名.
+     */
+    public OrderBy configExclusiveColumns(String... columns) {
+        if (columns != null) {
+            Collections.addAll(exclusiveColumns, columns);
+        }
+        return this;
+    }
+
     public <T> OrderBy orderBy(SFunction<T, ?> column, boolean isAsc) {
         return orderBy(column, isAsc ? ASC : DESC);
     }
@@ -136,6 +161,16 @@ public class OrderBy {
         return this.caseTransform.FROM.to(this.caseTransform.TO, origin);
     }
 
+    private boolean shouldAppend(String column) {
+        // 先看是否排除
+        if (exclusiveColumns.size() > 0 && exclusiveColumns.contains(column)) {
+            return false;
+        }
+
+        // 然后, 是否要包含
+        return inclusiveColumns.size() <= 0 || inclusiveColumns.contains(column);
+    }
+
     /**
      * 终端操作: 获取 sql 片段
      * 不含 order by 关键字
@@ -156,7 +191,9 @@ public class OrderBy {
             column = caseFormatting(column);
             // 再别名转换
             column = this.columnAliasMapping.getOrDefault(column, column);
-            sb.append(column).append(" ").append(direction);
+            if (shouldAppend(column)) {
+                sb.append(column).append(" ").append(direction);
+            }
         }
 
         return sb.toString();

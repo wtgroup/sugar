@@ -2,7 +2,11 @@ package com.wtgroup.sugar.db;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -14,6 +18,7 @@ import java.util.function.Function;
  *     v1.1
  *       - 分段规则改为 CommonUtil中的自动伸缩的分组规则.
  * </pre>
+ * @author L&J
  */
 @Slf4j
 public class SqlSegmentInUtil {
@@ -25,32 +30,32 @@ public class SqlSegmentInUtil {
      *
      * <p>暂只支持List和Set类型, 父级和子级集合类型一致</p>
      *
-     * @param inList
-     * @param maxSeg
-     * @param selector
+     * @param inList in 条件 list
+     * @param subInListSize 单批 in list 最大 size
+     * @param selector 数据查询逻辑
      * @param <E>      IN(..)中的元素类型
      * @param <R>      查询结果返回的List元素类型
-     * @return
+     * @return 合并后的总结果集
      */
-    public static <R, E> Collection<R> select(Collection<E> inList, int maxSeg, Function<Collection<E>, Collection<R>> selector) {
+    public static <R, E> Collection<R> select(Collection<E> inList, int subInListSize, Function<Collection<E>, Collection<R>> selector) {
         long t0 = System.currentTimeMillis();
         Collection<E> segInList = new ArrayList<>();
 
         int size = inList.size();
 
         Collection<R> compositeResults;
-        if (maxSeg >= size) {
+        if (subInListSize >= size) {
             //一次查就可以了
             //compositeResults = mobileTagMapper.selectMobileTags(mobiles);
             // compositeResults = selector.select(inList);
             compositeResults = selector.apply(inList);
 
-            log.debug("size({}) <= maxSeg({}), 仅执行单次查询", size, maxSeg);
+            log.debug("size({}) <= maxSeg({}), 仅执行单次查询", size, subInListSize);
         } else {
             // 伸缩分组
-            Map<Integer, Integer> segInfo = groupByLimitSize(size, maxSeg);
+            Map<Integer, Integer> segInfo = groupByLimitSize(size, subInListSize);
             //log.debug("size({}) > maxSeg({}), 将执行 {} 次分段查询", size, maxSeg, size / maxSeg + (size % maxSeg > 0 ? 1 : 0));
-            log.debug("size({}) > maxSeg({}), 将执行 {} 次分段查询(伸缩分组)", size, maxSeg, segInfo.size());
+            log.debug("size({}) > maxSeg({}), 将执行 {} 次分段查询(伸缩分组)", size, subInListSize, segInfo.size());
             compositeResults = new ArrayList<R>(size);
 
             int offset = 0;

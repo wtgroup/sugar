@@ -36,6 +36,9 @@ public class TreeTableHandlerTest {
                     // 当子集数据就绪时调用
                     @Override
                     public void onChildren( Map parent, List<Map> children ) {
+                        if (children==null) {
+                            return;
+                        }
                         parent.put("children", children);
                         parent.put("count", children.size());
                         int s = 0;

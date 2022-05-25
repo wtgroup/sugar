@@ -20,7 +20,7 @@
 <dependency>
     <groupId>com.github.wtgroup</groupId>
     <artifactId>sugar</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.4</version>
 </dependency>
 ```
 
@@ -168,32 +168,60 @@ System.out.println(composite);
 
 
 
-## `Lambda` 工具: 方法名-->字段名 (`com.wtgroup.sugar.reflect.LambdaUtil`)
+## `FieldNameUtil` 方法名->字段名 (`com.wtgroup.sugar.reflect.FieldNameUtil`)
 
-目前主要功能是将类的`getter`方法`Lambda`解析成对应的属性名.
+将类的`getter`方法`Lambda`解析成对应的属性名.
 
 你有没有这样的感受? 比如在查表中的某些字段时, 不得不硬编码这些字段名. 当表有所变动时, 不得不用肉眼检查相关代码, 同步调整.
 有了这个工具, 便可以利用编辑器帮你检查. 如果只是简单修改字段名, 仅仅利用编辑器的重构, 代码就同步修改好了. 
 
 ```java
-// com.wtgroup.sugar.reflect.LambdaUtilsTest
-String s = LambdaUtil.fieldName(User::getUname);
-System.out.println(s);                                      // => uname
-String s1 = LambdaUtil.fieldName(User::getAge);
-System.out.println(s1);                                     // => age
-System.out.println(LambdaUtil.fieldName(User::isMale));    // => male
+// 基本使用
+String result = FieldNameUtil.fromAccessor("getName");
+Assert.assertEquals("name", result);
+String result1 = FieldNameUtil.fromAccessor("setIsBool");
+Assert.assertEquals("isBool", result1);
+String result2 = FieldNameUtil.fromAccessor("getURL");
+Assert.assertEquals("URL", result2);
+String result3 = FieldNameUtil.fromAccessor("setuName");
+Assert.assertEquals("uName", result3);
 
-LambdaUtils.Origin lamb = LambdaUtil.of(User::getHelloFieldNameUtils);
-System.out.println(lamb.getFieldName());                    // 原样 helloFieldNameUtils
-System.out.println(lamb.to(CaseFormat.UPPER_UNDERSCORE));   // => HELLO_FIELD_NAME_UTILS
+// 还可以转换风格
+String result = FieldNameUtil.get(User::getHelloFieldNameUtils, CaseFormat.LOWER_HYPHEN);
+Assert.assertEquals("hello-field-name-utils", result);
 ```
 
 
-## 数字计算器工具类 `com.wtgroup.sugar.operation.Calculator`
+## 数字类 `com.wtgroup.sugar.math.Numbor`
+
+继承 Number 类, 但比它更有趣!
+
 在不知道计算因子是否为null时, 多个数字为了处理 Null Exception 很是麻烦.
 使用本工具类, 则不用关系是否为null的问题.
-demo: `com.wtgroup.sugar.operation.CalculatorTest`
 
+demo: `com.wtgroup.sugar.math.NumborSpec`, `com.wtgroup.sugar.math.NumborTest`.
+
+```
+3.0 - 2.0 等于?
+3.0 - 2.0 == 1.0 ?
+
+(double) 0.3 - 0.2; // 0.09999999999999998
+(double) 0.3 - 0.2 == 1.0; // false
+// o~o, NumberUtil 可以帮你
+NumberUtil.sub(0.3, 0.2); // 0.1
+NumberUtil.sub(0.3, 0.2) == 0.1; // true
+// Numbor 也可以
+new Numbor(0.3).sub(0.2); // 0.1
+new Numbor(0.3).sub(0.2).equals(0.1); // true
+
+// 但但, NumberUtil 在多个变量, 同时又不知道是否 null, 是否为 0 时, 在计算前需要很多判断校验, 绕费心思...
+// NumberUtil.div(1, null); // NullPointerException
+NumberUtil.mul(1, null); // 应该等于多少? 1 or 0 ?
+// NumberUtil.div(1, 0); // ArithmeticException
+
+// 看我的!
+new Numbor(1).mul((Number) null).add(12345).div(0).orElse(0); // 管它什么null, 无脑算就是了  => 0
+```
 
 ## `TypeDescor`
 

@@ -3,11 +3,13 @@ package com.wtgroup.sugar.stopwatch;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.wtgroup.sugar.collection.SoMap;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -16,6 +18,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p>! 只能用于单线程串行 !
  * <p>
  * 版本<br>
+ * == 2022年04月27日 L&J ==
+ * TaskInfo 增加 data
+ *
  * == v1.0.0 2020年11月17日 dafei ==
  * <li>优化时间输出, 友好话. 用 Duration 自带的格式化字符.</li>
  * <li>
@@ -77,7 +82,7 @@ public class StopWatch {
 	/**
 	 * 最后一次任务对象
 	 */
-	private TaskInfo lastTaskInfo;
+	private TaskInfo currentTaskInfo;
 	/**
 	 * 总任务数
 	 */
@@ -88,6 +93,8 @@ public class StopWatch {
 	private long totalTimeNanos;
 	/**
 	 * 保留最近的 task info 最大数量
+	 *
+	 * 高并发时, 最终实际任务数 >= 此数值
 	 */
 	private int maxTaskInfoSize = 1000;
 
@@ -198,6 +205,7 @@ public class StopWatch {
 
 		this.currentTaskName = taskName;
 		this.startTimeNanos = System.nanoTime();
+		this.currentTaskInfo = new TaskInfo(this.currentTaskName);
 	}
 
 	/**
@@ -206,6 +214,10 @@ public class StopWatch {
 	 * @throws IllegalStateException 任务没有开始
 	 */
 	public void stop() throws IllegalStateException {
+		stop(null);
+	}
+
+	public void stop(String message, Object ... args) throws IllegalStateException {
 		if (null == this.currentTaskName) {
 			// throw new IllegalStateException("Can't stop StopWatch: it's not running");
 			log.warn("Can't stop StopWatch: it's not running");
@@ -214,18 +226,46 @@ public class StopWatch {
 
 		final long lastTime = System.nanoTime() - this.startTimeNanos;
 		this.totalTimeNanos += lastTime;
-		this.lastTaskInfo = new TaskInfo(this.currentTaskName, lastTime);
+		this.currentTaskInfo.setTimeNanos(lastTime);
+		this.currentTaskInfo.addMessage(message, args);
+
 		if (null != this.taskList) {
-			this.taskList.add(this.lastTaskInfo);
+			this.taskList.add(this.currentTaskInfo); // tt 不会被别人更改
 			this.tryRemoveEarly();
 		}
 		++this.taskCount;
 		this.currentTaskName = null;
 	}
 
+	public void addData(Map<String, Object> data) {
+		if (isRunning()) {
+			this.currentTaskInfo.addData(data);
+		} else {
+			log.warn("Can't add data to StopWatch: it's not running");
+		}
+	}
+
+	public void addData(String key, Object value) {
+		if (isRunning()) {
+			this.currentTaskInfo.addData(key, value);
+		} else {
+			log.warn("Can't add data to StopWatch: it's not running");
+		}
+	}
+
+	public void addMessage(String message, Object ... args) {
+		if (isRunning()) {
+			this.currentTaskInfo.addMessage(message, args);
+		} else {
+			log.warn("Can't add data to StopWatch: it's not running");
+		}
+	}
+
 	/**删除超过长度限制的早期 task info, 并发下, 有个人完成就够了*/
 	private void tryRemoveEarly() {
-		if(!lock.tryLock()) return;
+		if(!lock.tryLock()) {
+			return;
+		}
 		try {
 			int ext = this.taskList.size() - this.maxTaskInfoSize;
 			if (ext >= 0) { // 并发下, 删除过程中, 别人增加了, 会删除"不干净"(容忍)
@@ -265,10 +305,10 @@ public class StopWatch {
 	 * @throws IllegalStateException 无任务
 	 */
 	public long getLastTaskTimeNanos() throws IllegalStateException {
-		if (this.lastTaskInfo == null) {
+		if (this.currentTaskInfo == null) {
 			throw new IllegalStateException("No tasks run: can't get last task interval");
 		}
-		return this.lastTaskInfo.getTimeNanos();
+		return this.currentTaskInfo.getTimeNanos();
 	}
 
 	/**
@@ -278,10 +318,10 @@ public class StopWatch {
 	 * @throws IllegalStateException 无任务
 	 */
 	public long getLastTaskTimeMillis() throws IllegalStateException {
-		if (this.lastTaskInfo == null) {
+		if (this.currentTaskInfo == null) {
 			throw new IllegalStateException("No tasks run: can't get last task interval");
 		}
-		return this.lastTaskInfo.getTimeMillis();
+		return this.currentTaskInfo.getTimeMillis();
 	}
 
 	/**
@@ -291,10 +331,10 @@ public class StopWatch {
 	 * @throws IllegalStateException 无任务
 	 */
 	public String getLastTaskName() throws IllegalStateException {
-		if (this.lastTaskInfo == null) {
+		if (this.currentTaskInfo == null) {
 			throw new IllegalStateException("No tasks run: can't get last task name");
 		}
-		return this.lastTaskInfo.getTaskName();
+		return this.currentTaskInfo.getTaskName();
 	}
 
 	/**
@@ -304,10 +344,10 @@ public class StopWatch {
 	 * @throws IllegalStateException 无任务
 	 */
 	public TaskInfo getLastTaskInfo() throws IllegalStateException {
-		if (this.lastTaskInfo == null) {
+		if (this.currentTaskInfo == null) {
 			throw new IllegalStateException("No tasks run: can't get last task info");
 		}
-		return this.lastTaskInfo;
+		return this.currentTaskInfo;
 	}
 
 	/**
@@ -385,7 +425,7 @@ public class StopWatch {
 			sb.append("No task info kept");
 		} else {
 			sb.append("---------------------------------------------").append(FileUtil.getLineSeparator());
-			sb.append("ns         %     Task name").append(FileUtil.getLineSeparator());
+			sb.append("ns         %     Task name         *").append(FileUtil.getLineSeparator());
 			sb.append("---------------------------------------------").append(FileUtil.getLineSeparator());
 
 			// final NumberFormat nf = NumberFormat.getNumberInstance();
@@ -398,7 +438,11 @@ public class StopWatch {
 			for (TaskInfo task : getTaskInfo()) {
 				sb.append(this.nanos2Duration(task.getTimeNanos())).append("  ");
 				sb.append(pf.format((double) task.getTimeNanos() / getTotalTimeNanos())).append("  ");
-				sb.append(task.getTaskName()).append(FileUtil.getLineSeparator());
+				sb.append("[").append(task.getTaskName()).append("]");
+				if (task.hasMessage()) {
+					sb.append("  ").append(task.messagePrint());
+				}
+				sb.append(FileUtil.getLineSeparator());
 			}
 		}
 		return sb.toString();
@@ -412,6 +456,9 @@ public class StopWatch {
 				sb.append("; [").append(task.getTaskName()).append("] took ").append(this.nanos2Duration(task.getTimeNanos()));
 				long percent = Math.round(100.0 * task.getTimeNanos() / getTotalTimeNanos());
 				sb.append(" = ").append(percent).append("%");
+				if (task.hasMessage()) {
+					sb.append(", ").append(task.messagePrint());
+				}
 			}
 		} else {
 			sb.append("; no task info kept");
@@ -431,7 +478,19 @@ public class StopWatch {
 	public static final class TaskInfo {
 
 		private final String taskName;
-		private final long timeNanos;
+		private long timeNanos;
+		/**
+		 * 额外信息 (结构化)
+		 */
+		private Map<String, Object> data;
+		/**
+		 * 额外信息 (非结构化)
+		 */
+		private String message;
+
+		TaskInfo(String taskName) {
+			this(taskName, 0L);
+		}
 
 		TaskInfo(String taskName, long timeNanos) {
 			this.taskName = taskName;
@@ -458,6 +517,10 @@ public class StopWatch {
 			return this.timeNanos;
 		}
 
+		public void setTimeNanos(long timeNanos) {
+			this.timeNanos = timeNanos;
+		}
+
 		/**
 		 * 获取任务花费时间（单位：毫秒）
 		 *
@@ -478,6 +541,64 @@ public class StopWatch {
 		 */
 		public double getTimeSeconds() {
 			return DateUtil.nanosToSeconds(this.timeNanos);
+		}
+
+
+		public Map<String, Object> getData() {
+			return this.data;
+		}
+
+		public String getMessage() {
+			return this.message;
+	}
+
+		public void addData(Map<String, Object> data) {
+			if (this.data == null) {
+				this.data = data;
+			} else {
+				this.data.putAll(data);
+}
+
+			// String kvPair = getKvPair(data);
+			// if (kvPair == null) {
+			// 	return;
+			// }
+			// this.data = this.data == null ? kvPair : this.data + kvPair;
+		}
+
+		public void addData(String key, Object value) {
+			if (this.data == null) {
+				this.data = SoMap.of(key, value);
+			} else {
+				this.data.put(key, value);
+			}
+		}
+
+		public void addMessage(String message, Object ... args) {
+			if (message == null) {
+				return;
+			}
+			String fmt = StrUtil.format(message, args);
+			if (StrUtil.isBlank(this.message)) {
+				this.message = fmt;
+			} else {
+				this.message += " | " + fmt;
+			}
+		}
+
+		public String messagePrint() {
+			String res = "";
+			if (this.message != null) {
+				res += this.message;
+			}
+			if (this.data != null && this.data.size() > 0) {
+				res += (res.length() == 0 ? this.data : "  " + this.data);
+			}
+			return res;
+		}
+
+		public boolean hasMessage() {
+			return this.message != null || this.data != null;
 		}
 	}
 }

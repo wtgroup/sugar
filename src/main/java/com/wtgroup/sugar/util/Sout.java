@@ -1,4 +1,4 @@
-package com.wtgroup.sugar.collection;
+package com.wtgroup.sugar.util;
 
 import cn.hutool.core.util.StrUtil;
 

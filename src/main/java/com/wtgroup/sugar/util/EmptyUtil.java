@@ -22,11 +22,11 @@ import java.util.Map;
 public class EmptyUtil {
 
     // 默认模式直接调用, 不对外暴露
-    private static final EmptyMode defaultMode = new StrictEmptyMode();
+    private static final EmptyMode defaultMode = new JdkEmptyMode();
 
     /*注: 新增模式, 以 static final 以此列出. 字段名: {xxx}_MODE */
 
-    public static final EmptyMode STRICT_MODE = new StrictEmptyMode();
+    public static final EmptyMode EXTEND_MODE = new ExtendEmptyMode();
 
     /**
      * jdk 代码层面的空
@@ -103,7 +103,7 @@ public class EmptyUtil {
 
 
     /**
-     * 严格模式
+     * 扩展模式
      * <p>
      * - 数字: 0
      * - 字符传: 空白符 | 'null' | 'NULL'
@@ -111,7 +111,7 @@ public class EmptyUtil {
      * - 集合: 无元素
      * - Map: 无entry
      */
-    private static class StrictEmptyMode implements EmptyMode {
+    private static class ExtendEmptyMode implements EmptyMode {
 
         @Override
         public boolean isEmpty(Object subject, Object... otherEmptyCases) {

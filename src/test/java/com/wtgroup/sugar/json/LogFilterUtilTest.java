@@ -1,7 +1,7 @@
 package com.wtgroup.sugar.json;
 
 import com.alibaba.fastjson.JSON;
-import com.wtgroup.sugar.collection.Sout;
+import com.wtgroup.sugar.util.Sout;
 import lombok.Data;
 import org.junit.Test;
 

@@ -36,7 +36,7 @@ import java.util.Iterator;
  * @date 2019/11/21 19:50
  */
 @Slf4j
-public class LogFilterUtil {
+public class JsonFilterUtil {
     /**
      * base64图片开头
      */
@@ -48,10 +48,10 @@ public class LogFilterUtil {
     private static final String JSON_ARR_START_KEY = "[";
     private static final String JSON_ARR_END_KEY = "]";
 
-    private LogFilterUtil() {}
+    private JsonFilterUtil() {}
 
-    public static LogValueFilter valueFilter(LogFilterConfig config) {
-        return new LogValueFilter(config);
+    public static JsonValueFilter valueFilter(LogFilterConfig config) {
+        return new JsonValueFilter(config);
     }
 
 
@@ -85,13 +85,13 @@ public class LogFilterUtil {
      * 2. 值是集合或数组时, (1)元素个数限制, 且(2)递归1,2, 即, 字符串时, 长度截取, 集合或数组时...
      */
     @NoArgsConstructor
-    public static class LogValueFilter implements ValueFilter {
-        public static final LogValueFilter DEFAULT = new LogValueFilter(LogFilterConfig.DEFAULT);
+    public static class JsonValueFilter implements ValueFilter {
+        public static final JsonValueFilter DEFAULT = new JsonValueFilter(LogFilterConfig.DEFAULT);
 
         @Setter
         private LogFilterConfig config;
 
-        public LogValueFilter(LogFilterConfig config) {
+        public JsonValueFilter(LogFilterConfig config) {
             Assert.notNull(config);
             this.config = config;
         }
@@ -252,11 +252,11 @@ public class LogFilterUtil {
 
 
     public static String toJSONString(Object obj, LogFilterConfig config, SerializerFeature... features) {
-        LogValueFilter logValueFilter = LogValueFilter.DEFAULT;
+        JsonValueFilter jsonValueFilter = JsonValueFilter.DEFAULT;
         if (config != null) { // 配置不同, 需要新建 LogValueFilter
-            logValueFilter = new LogValueFilter(config);
+            jsonValueFilter = new JsonValueFilter(config);
         }
-        return JSON.toJSONString(obj, logValueFilter, features);
+        return JSON.toJSONString(obj, jsonValueFilter, features);
     }
 
     /**

@@ -9,17 +9,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LogFilterUtilTest {
+public class JsonFilterUtilUtilTest {
 
 
     @Test
     public void foo() {
-        final LogFilterUtil.LogFilterConfig config = new LogFilterUtil.LogFilterConfig();
+        final JsonFilterUtil.LogFilterConfig config = new JsonFilterUtil.LogFilterConfig();
         config.omitTipTpl("#OMIT#")
                 .stringMaxLen(2)
                 .jsonStringMaxLen(2)
                 .arrayMaxSize(1);
-        final LogFilterUtil.LogValueFilter logValueFilter = LogFilterUtil.valueFilter(config);
+        final JsonFilterUtil.JsonValueFilter jsonValueFilter = JsonFilterUtil.valueFilter(config);
 
         final Demo bean = new Demo();
         bean.a = "帅哥;非空时;挨个lj23l56j2l6j2lj6";
@@ -31,11 +31,11 @@ public class LogFilterUtilTest {
         bean.e = m;
 
 
-        final String s = JSON.toJSONString(bean, logValueFilter);
+        final String s = JSON.toJSONString(bean, jsonValueFilter);
 
         Sout.println(s);
 
-        final String s1 = LogFilterUtil.toJSONString(bean);
+        final String s1 = JsonFilterUtil.toJSONString(bean);
         Sout.println(s1);
     }
 
